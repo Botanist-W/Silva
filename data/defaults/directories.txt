@@ -1,0 +1,6 @@
+
+SettingsBasePath: C:/dev/Projects/Silva/data/input
+settingsPath: C:/dev/Projects/Silva/data/input do this
+
+dataOutputBasePath: C:/dev/Projects/Silva/data/output
+dataOutputPath: C:/dev/Projects/Silva/data/output...
