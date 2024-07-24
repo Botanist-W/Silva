@@ -1,3 +1,9 @@
+## Notes
+ImGui won't add for some reason
+but otherwise, should build
+This is my first project wiht c++ so it won't be great. sorry
+Also the UI and simulation arent put together yet so That won't run, just getting it out there
+
 # Silva
 
 This is a model that aims to simulate the impact of forest fragmentation of the diversity and species distribtuion of ecosystems that experience Conspecific negative Density Dependence (CNDD). 
