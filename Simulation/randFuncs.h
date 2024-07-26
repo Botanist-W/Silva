@@ -1,11 +1,15 @@
 #pragma once
 
-#ifndef RAND
-#define RAND
 
 
 #include <random>
 #include "boost/random.hpp"
+
+
+#ifndef RAND
+#define RAND
+
+
 
 
 extern int seed;

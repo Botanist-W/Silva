@@ -1,6 +1,9 @@
 cmake_minimum_required(VERSION 3.20)
 project(Simulation)
 
+set(VCPKG_ROOT "C:/dev/vcpkg/") ## Have to do this cus VS is being mean
+set(VCPKG_INCLUDE_DIR "${VCPKG_ROOT}/installed/x64-windows/include")
+
 file(GLOB SIM_SOURCES
     "*.cpp"
     "*.h"
@@ -8,7 +11,7 @@ file(GLOB SIM_SOURCES
 
 
 add_library(Simulation STATIC ${SIM_SOURCES})
-include_directories(C:/dev/vcpkg/installed/x64-windows/include) # I will not do this the right way
+include_directories(${VCPKG_INCLUDE_DIR}) # I will not do this the right way
 #find_package(boost) # If it works for u
 
 

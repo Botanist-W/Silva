@@ -1,3 +1,4 @@
+#pragma once
 
 #ifndef FOREST
 #define FOREST

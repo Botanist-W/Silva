@@ -1,11 +1,11 @@
 #pragma once
+#include "randFuncs.h"
+#include "settings.h"
+#include "Individual.h"
 
 #ifndef META
 #define META
 
-#include "randFuncs.h"
-#include "settings.h"
-#include "Individual.h"
 
 // Nice easy small class for now, May need expantion later on 
 class metaComC {
