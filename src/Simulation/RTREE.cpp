@@ -54,3 +54,14 @@ value rTree::randomTree() {
 };
 
 
+std::vector<value> rTree::getValues() {
+    
+    std::vector<value> results;
+
+    for (auto& i : tree)
+        results.emplace_back(i);
+
+    return results;
+
+}
+

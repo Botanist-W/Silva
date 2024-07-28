@@ -25,9 +25,10 @@ public:
 
 	Forest(params& _params, int& _ID) : rTree(_params), forestID(_ID) {
 		std::cout << "Created forest: " << forestID << "\n";
-		searchResults.reserve(Pi*(searchArea*searchArea)*treeDensity*2); // Reserving twice the average expected number of trees returned in each search to prevent reallocation
-		setMethods();
+		//searchResults.reserve(Pi*(searchArea*searchArea)*treeDensity*2); // Reserving twice the average expected number of trees returned in each search to prevent reallocation
 		setParams();
+		setMethods();
+		
 	}
 
 	void localStep(); // Run a step of dispersal and competition, MAKE IT FAST ( Immigration is done first in the simulation class )

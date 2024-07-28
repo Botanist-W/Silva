@@ -2,7 +2,11 @@
 
 
 App::App() {
+    
 	setup();
+
+    mSim = new Simulation(par);
+
 };
 
 App::~App() {
@@ -304,8 +308,11 @@ void App::Menu() {
     if (im::Button("Load settings"))
         loadSettings = true;
 
-    if(im::Button("Run"))
+    if (im::Button("Run")) {
         run = true;
+        updateSim();
+
+    }
 
     ImGui::End();
 
@@ -336,6 +343,8 @@ void App::Run() {
 
         Menu();
         DrawFragments();
+        if(im::Checkbox("Show a forest?? ", &drawAForest))
+            mDrawForest->visualizeForest();
 
         if (saveSettings) {
             generateDirectory();
@@ -687,5 +696,18 @@ void App::loadSizeList() {
 
     file.close();
 
+
+}
+
+
+
+void App::updateSim() {
+    // lets try raw pointers
+
+    delete mSim; 
+    mSim = new Simulation(par);
+
+   //mSim = std::make_unique<Simulation>(par);
+   // mDrawForest = std::make_unique<drawForest>(mSim->getForest(0));
 
 }

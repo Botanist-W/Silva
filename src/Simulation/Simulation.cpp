@@ -96,3 +96,10 @@ void Simulation::basicRun() {
 	//speciesCount::forestsToCSV(outputCapture, mParams.rtreePath); // TODO : Implement a better output method :) 
 
 };
+
+
+Forest& Simulation::getForest(int id) {
+
+	return forests[id];
+
+}

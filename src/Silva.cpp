@@ -3,6 +3,9 @@
 
 #include "Silva.h"
 #include "ImGui/App.h"
+#include "Simulation/randFuncs.h"
+
+boost::random::mt19937 rng;
 
 
 /* TODOS:

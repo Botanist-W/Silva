@@ -91,6 +91,10 @@ point continuousDisp::dispTorus(point& pos) {
     }
 };
 
+bool continuousDisp::inBounds(point& p) {
+    return true;
+}
+
 // ~ Continuous dispersal
 
 // CONTINUOUS SEARCH

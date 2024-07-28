@@ -4,6 +4,9 @@ cmake_minimum_required (VERSION 3.20)
 
 cmake_policy(SET CMP0091 NEW)
 
+set(VCPKG_ROOT "C:/dev/vcpkg") # My vcpkg isnt playing nice
+set(VCPKG_INCLUDE_DIR "${VCPKG_ROOT}/installed/x64-windows/include")
+
 message(STATUS "
     CONFETTI party model
     Simulation to understand the impact of conspecific negative density dependence in a fragmented landscape 
@@ -13,10 +16,6 @@ message(STATUS "
     Masters project 2023 - 24
     https://github.com/Botanist-W/Main-simulation
 ")
-
-
-
-#set(CMAKE_TOOLCHAIN_FILE "${VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake")
 
 project(Silva)
 
@@ -33,10 +32,8 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib/${OUTPUT_DIR})
 
 # Include directories
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/src)
+include_directories(${VCPKG_INCLUDE_DIR})
 
-
-# Add external libraries
-add_subdirectory(Simulation)
 add_subdirectory(vendor/GLFW)
 add_subdirectory(vendor/imgui)
 
@@ -45,7 +42,7 @@ file(GLOB_RECURSE MY_SOURCES
     "${CMAKE_CURRENT_SOURCE_DIR}/src/*.h"
 )
 
-
+#find_package(Boost REQUIRED)
 add_executable(Silva ${MY_SOURCES})
 
 target_compile_definitions(Silva PUBLIC RESOURCE_PATH="${CMAKE_CURRENT_SOURCE_DIR}/data/")
@@ -53,15 +50,13 @@ target_compile_definitions(Silva PUBLIC RESOURCE_PATH="${CMAKE_CURRENT_SOURCE_DI
 # Include directories and link libraries
 target_include_directories(Silva PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/src
-    ${CMAKE_CURRENT_SOURCE_DIR}/Simulation
+    C:/dev/vcpkg/installed/x64-windows/include
     ${CMAKE_CURRENT_SOURCE_DIR}/vendor/GLFW/include
     ${CMAKE_CURRENT_SOURCE_DIR}/vendor/imgui
-    ${CMAKE_CURRENT_SOURCE_DIR}/vendor/csv
 )
 
 target_link_libraries(Silva PUBLIC
     glfw
     ImGui
     opengl32
-    Simulation
 )

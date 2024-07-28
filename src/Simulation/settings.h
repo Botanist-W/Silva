@@ -8,7 +8,7 @@
 struct params { // 
 
     // Simulation Settings
-    int timeSteps = 10000;
+    int timeSteps = 1000;
     int numRep = 1;  //number replicates
 
     int numSpecies = 300; // number of species  
@@ -16,7 +16,7 @@ struct params { //
 
     // Immigration settings
     bool metaCommunityImmigration = false;
-    int metaComSize = 50000;
+    int metaComSize = 5000;
 
     // Fragment interactions etc
     int numFragments = 3;

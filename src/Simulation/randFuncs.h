@@ -2,21 +2,22 @@
 
 
 
-#include <random>
-#include "boost/random.hpp"
 
 
 #ifndef RAND
 #define RAND
 
 
+#include <random>
+#include "boost/random.hpp"
 
 
 extern int seed;
 extern boost::random::mt19937 rng;
 
-static std::random_device rd; 
+static std::random_device rd;
 static std::mt19937 gen(rd());
+
 
 class Crand {
 

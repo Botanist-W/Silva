@@ -4,16 +4,17 @@
 void Forest::setMethods() {
 
 	// Setting up which tpes of interactions should be used -->> This could be expanded for more options easily (***hopefully)
-	if (mParams.fragmented == false) 
+	if (mParams.fragmented == false)
 		disp = std::make_unique <continuousDisp> (*this);
-	else 
+	else
 		disp = std::make_unique <fragmentedDisp> (*this);
 	
 
 	if (mParams.CNDD == mParams.HNDD) // The neutral thing is a little obsolete but there is a little performance boost I guess 
 		comp = std::make_unique<neutralComp>(*this);
-	else 
+	else
 		comp = std::make_unique<cnddComp>(*this);
+		
 		
 	// Am I doing this right or should these be subclasses << NO, idiot 
 

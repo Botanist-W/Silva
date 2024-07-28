@@ -17,17 +17,22 @@ class Simulation
 {
 public:
 
-	Simulation() {
+	Simulation(params& _params):
+		mParams(_params){
 		setup();
 		outputCapture = std::vector<std::vector<std::pair<int, value>>>(mParams.numFragments, std::vector<std::pair<int, value>>(mParams.timeSteps));
-		basicRun();
+		//basicRun();
 	}
+
+	~Simulation() = default;
 
 	void run(); // Main function for this 
 
 	void output();
 
 	void basicRun(); // Test without threads
+
+	Forest& getForest(int id);
 
 	// vectors for output << a sum of all individual forest counts >> R friendly data 
 	std::vector<std::vector<std::pair<int, value>>> outputCapture;
@@ -42,14 +47,14 @@ private:
 	// ~ Constructor stuff
 
 	// Run stuff
-	void doThis();
+	
 	// ~ Run stuff
 
 	// Output Stuff
 	void capture(std::string&);
 	// ~ Output stuff
 
-	params mParams;
+	params& mParams;
 
 	std::vector<Forest> forests; // TODO: SET UP
 

@@ -8,6 +8,7 @@
 
 
 
+
 namespace bg = boost::geometry;
 namespace bgi = boost::geometry::index;
 typedef bg::model::point<float, 2, bg::cs::cartesian> point;
@@ -66,6 +67,8 @@ public:
 	void removeTree(value foo);
 
 	value randomTree(); 
+
+	std::vector<value> getValues();
 
 	void buildFromLib(std::vector<indiv>&);
 

@@ -3,7 +3,9 @@
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
-#include "csv.h"
+#include "drawForest.h"
+#include "Simulation/settings.h"
+#include "Simulation/Simulation.h"
 #include <stdio.h>
 #include <memory>
 #include <vector>
@@ -39,45 +41,6 @@ namespace im = ImGui;
 
 
 
-
-
-struct params { // 
-
-    // Simulation Settings
-    int timeSteps = 10000;
-    int numRep = 1;  //number replicates
-
-    int numSpecies = 300; // number of species  
-    float treeDensity = 0.04; // Number of trees per area or lambda for pois()
-
-    // Immigration settings
-    bool metaCommunityImmigration = false;
-    int metaComSize = 50000;
-
-    // Fragment interactions etc
-    int numFragments = 3;
-    bool equalFragmentSize = true;
-    float size = 50; // L ... Size of simulation Usefull for continuous 
-    std::vector<float> fragmentSizeList; // Is the equal Fragment size == false --> this this is used 
-    std::vector<std::vector<float>> nodeMap;
-
-    // Ecological settings
-    bool fragmented = false; // Run with or without fragmentation
-    bool neutralComp = true;
-
-    float searchArea = 100; // ZOI
-    float b1 = 0.01;
-    float b2 = 7;
-    float m = 0.03; // Immigration rate
-    float dispersalDis = 20;
-    float mort = 0.1; // mortality rate TODO : implement or remove 
-    float HNDD = 0.1; // Default HNDD strength TODO: implement
-    float CNDD = 0.1; // Default CNDD
-    float extinctionRate = 0.0001;
-
-
-   
-};
 
 
 
@@ -118,10 +81,13 @@ private:
     int nextRow = 0;
 
 	ImGuiIO io;
-
-	bool m_show_demo_window = true; // I know
-	bool m_show_another_window = false;
 	ImVec4 clear_color;
+    
+    void updateSim();
+    Simulation* mSim;
+    //std::unique_ptr<Simulation> mSim;
+    std::unique_ptr<drawForest> mDrawForest;// { mSim.getForest(0) };
+    bool drawAForest;
 
 	params par;
 	bool run;
@@ -130,9 +96,12 @@ private:
     bool loadSettings = false;
     bool openNewNodeMap = false;
 
+
+    // TODO: Offload to the settings class
     std::string dataOutputPath = "";
     std::string settingsPath = "";
     std::string settingsDirectory = "";
+
 
     void generateDirectory();
 
