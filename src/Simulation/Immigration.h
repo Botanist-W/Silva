@@ -17,15 +17,19 @@ class Immigration
 {
 public:
 
-	Immigration(params& _params) : mParams(_params) {
+	Immigration(params& _params, std::vector<std::shared_ptr<Forest>> _forests) : mParams(_params) , mForests(_forests){
 	};
 
 	virtual void handleImmigration(int& step) = 0;
 
 	virtual bool mOccurence(int& ID, int&step) = 0;
 
-	params& mParams;
+	virtual void buildMetaCom(std::vector<indiv> spLib) =0;
 
+	params& mParams;
+	std::vector<std::shared_ptr<Forest>> mForests;
+
+	std::bernoulli_distribution mDist{ mParams.m }; // True or false for a chance of immigration << thanks standard lib
 
 };
 
@@ -33,17 +37,21 @@ public:
 class metaImmigration : public Immigration {
 public:
 	
-	metaImmigration(params& _params) : Immigration(_params) {}
+	metaImmigration(params& _params, std::vector<std::shared_ptr<Forest>> _forests) : Immigration(_params, _forests) {
+	};
 
 	void handleImmigration(int& step) override;
 
 	bool mOccurence(int& ID, int& step) override;
 
+	void buildMetaCom(std::vector<indiv> spLib) override;
+
 private:
+	bool doesImmigrationOccur = false;
 
-	std::vector<int> metaCom;
+	std::vector<indiv> metaCom;
 
-	//void buildMetaCom();
+
 
 };
 
@@ -51,7 +59,7 @@ private:
 class networkImmigration : public Immigration { // Passer class --> just preverves some code that is used in both network immigration senaios but not the metaCommunity immigatration 
 public: 
 	
-	networkImmigration(params& _params, std::vector<Forest>& _forests) : Immigration(_params), mForests(_forests) {
+	networkImmigration(params& _params, std::vector<std::shared_ptr<Forest>> _forests) : Immigration(_params, _forests) {
 		temporalImmigrationMap = std::vector<std::vector<int>>(mParams.numFragments, std::vector<int>(mParams.timeSteps)); // Setting the size!
 		temporalImmigrationBool = std::vector<std::vector<bool>>(mParams.numFragments, std::vector<bool>(mParams.timeSteps));
 
@@ -63,12 +71,13 @@ public:
 
 	bool mOccurence(int& ID, int& step) override;
 
+	void buildMetaCom(std::vector<indiv> spLib) override;
+
 private:
 
-	std::vector<Forest>& mForests;
+	
 
-	std::bernoulli_distribution mDist { mParams.m }; // True or false for a chance of immigration << thanks standard lib
-
+	
 	std::vector<std::vector<bool>> temporalImmigrationBool;// // To check whether immigration occurs at all for that Forest << Even nessasay ?? >> probs not 
 	std::vector<std::vector<int>> temporalImmigrationMap;// { mSetting.numFragments, std::vector<int>(mSetting.timeSteps, 0) }; // To check where the immigration comes from // Reserving space and Set the whole lot to 0 cus most of them will be 
 	// U might be wondering why I did this statically and the answer is I have no idea :( but it works so ...

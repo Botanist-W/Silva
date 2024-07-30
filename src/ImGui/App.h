@@ -87,7 +87,7 @@ private:
     Simulation* mSim;
     //std::unique_ptr<Simulation> mSim;
     std::unique_ptr<drawForest> mDrawForest;// { mSim.getForest(0) };
-    bool drawAForest;
+    bool drawAForest = false;
 
 	params par;
 	bool run;

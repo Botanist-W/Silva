@@ -8,8 +8,9 @@
 struct params { // 
 
     // Simulation Settings
-    int timeSteps = 1000;
-    int numRep = 1;  //number replicates
+    int timeSteps = 10000;
+    int captureRate = 1000;
+    int numRep = 10;  //number replicates
 
     int numSpecies = 300; // number of species  
     float treeDensity = 0.04; // Number of trees per area or lambda for pois()
@@ -30,13 +31,13 @@ struct params { //
     bool neutralComp = true;
 
     float searchArea = 100; // ZOI
-    float b1 = 0.01;
+    float b1 = 6;
     float b2 = 7;
     float m = 0.03; // Immigration rate
     float dispersalDis = 20;
     float mort = 0.1; // mortality rate TODO : implement or remove 
-    float HNDD = 0.1; // Default HNDD strength TODO: implement
-    float CNDD = 0.1; // Default CNDD
+    float HNDD = 9; // Default HNDD strength TODO: implement
+    float CNDD = 9; // Default CNDD
     float extinctionRate = 0.0001;
 
 

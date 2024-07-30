@@ -9,20 +9,21 @@
 class drawForest {
 public:
 
-    drawForest(Forest& _forest);
+    drawForest(std::shared_ptr<Forest> _forest);
 
     // Method to visualize the forest with a given ID
     void visualizeForest();
 
 private:
-    Forest& mForest;
+    std::shared_ptr<Forest> mForest;
 
     std::map<int, ImVec4> speciesColors;  // Maps speciesID to a unique color
 
+    void buildColourLib();
+
+
     // Helper method to generate a random color
     ImVec4 generateRandomColor();
-
-    
 
     // Helper method to get or assign color to a speciesID
     ImVec4 getSpeciesColor(int speciesID);

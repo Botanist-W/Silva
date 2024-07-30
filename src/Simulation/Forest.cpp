@@ -35,7 +35,7 @@ void Forest::setParams() {
 
 // Step after immigration has been decided in the 
 void Forest::localStep() {
-	std::cout << "TESTSAFYGAKU \n";
+
 	// Remove a random tree
 	tree.remove(randomTree()); // Where should this go << who really cares?
 
@@ -57,27 +57,37 @@ void Forest::localStep() {
 			continue; // Restart dispersal if not in bounds 
 		}
 		
+		searchResults = search(recPos, searchArea);
+
+		std::cout << "parent position: " << parent.first.get<0>() << " , " << parent.first.get<1>() << "\n"; // Working
+		std::cout << "recruit position: " << recPos.get<0>() << " , " << recPos.get<1>() << "\n"; // go back to construction 
+		std::cout << "No. search results: " << searchResults.size() << "\n";
 
 		if(searchResults.size() > 2){
 			std::cout << "Searching\n";
-			searchResults = search(recPos, searchArea);
 		}
 		else
 		{
-			std::cout << "error in searching, no trees around, returning random tree";
+			std::cout << "error in searching, no trees around, returning random tree  \nFOREST:  " << forestID << "\n";
 			tree.insert(value(point(Crand::rand_double(0, bounds), Crand::rand_double(0, bounds)), randomTree().second));
 			break;
 		}
 
 		float NCI = comp->compIndex(searchResults, parent, recPos); // Main TODO: Figure out how this works 
 
+		float pNCI = 1 / (1 + NCI);
+		std::cout << "NCI:  " << NCI << "\n";
+		float compare = Crand::randFloat(0, 1);
+
 		// Main check for whether recruitment was successfull 
-		if (NCI < treeDensity) { // Can alter this later ://
+		if (pNCI < Crand::randFloat(0,1)) { // Can alter this later ://
+			std::cout << "Yipee" << pNCI << "\n";
 			tree.insert(value(recPos, parent.second));
 			break;
 		} 
 		else
 		{
+			std::cout << "Oh dear" << pNCI << "\n";
 			searchResults.clear();
 			continue;
 		}

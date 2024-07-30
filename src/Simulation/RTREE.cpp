@@ -32,6 +32,7 @@ std::vector<value> rTree::search(point sought, float& searchArea) {
             {return bg::distance(v.first, sought) < searchArea; }), // Stating the logic of the funtion
         std::back_inserter(results)); // Adding true values to the results vector 
 
+
     return results;
 };
 
@@ -54,8 +55,8 @@ value rTree::randomTree() {
 };
 
 
-std::vector<value> rTree::getValues() {
-    
+std::vector<value> rTree::getValues() { // I know this is slow but I forgot how to do it propely 
+
     std::vector<value> results;
 
     for (auto& i : tree)
@@ -63,5 +64,5 @@ std::vector<value> rTree::getValues() {
 
     return results;
 
-}
+};
 

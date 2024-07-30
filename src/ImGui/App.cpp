@@ -173,7 +173,7 @@ void App::Menu() {
         par.fragmentSizeList.emplace_back(par.size);
         if (!im::Checkbox("Equal Fragment Size? ", &par.equalFragmentSize)) {
             if (!par.equalFragmentSize) {
-                ImGui::BeginChild("ScrollableRegion", ImVec2(0, 400), true, ImGuiWindowFlags_HorizontalScrollbar);
+                ImGui::BeginChild("ScrollableRegion", ImVec2(0, 100), true, ImGuiWindowFlags_HorizontalScrollbar);
                 if (im::CollapsingHeader("Set fragment sizes")) {
                     for (int i = 0; i < par.numFragments; i++) {
                         std::string label = "Fragment " + std::to_string(i) + ": ";
@@ -185,7 +185,7 @@ void App::Menu() {
             }
             else {
                 ImGui::PushItemWidth(menuWidth / 4);
-                im::InputFloat("Size", &par.size);
+                im::InputFloat("Input Size", &par.size);
                 ImGui::PopItemWidth(); 
             }
         }
@@ -274,13 +274,17 @@ void App::Menu() {
         }
     }
     else {
+        im::InputFloat("Input Forest size: ", &par.size);
+
         im::InputInt("Metacommunity size: ", &par.metaComSize);
+     
     }
 
 
     im::SeparatorText("Simulation settings");
     ImGui::PushItemWidth(menuWidth / 4.2);
     im::InputInt("No. of time steps: ", &par.timeSteps);
+    im::InputInt("Capture Rate: ", &par.captureRate);
     im::InputInt("No. of Repeats: ", &par.numRep);
     im::InputInt("No. of Species: ", &par.numSpecies);
     ImGui::PopItemWidth();
@@ -309,8 +313,19 @@ void App::Menu() {
         loadSettings = true;
 
     if (im::Button("Run")) {
+
         run = true;
+
+        drawAForest = false;
+
         updateSim();
+        
+        mSim->basicRun();
+    }
+
+    if (im::Checkbox("Show first fragment: ", &drawAForest)) {
+
+        mDrawForest = std::make_unique<drawForest>(mSim->getForest(0));
 
     }
 
@@ -343,8 +358,11 @@ void App::Run() {
 
         Menu();
         DrawFragments();
-        if(im::Checkbox("Show a forest?? ", &drawAForest))
+
+        if (drawAForest && par.fragmentSizeList[0] < 250)
             mDrawForest->visualizeForest();
+        else if(par.fragmentSizeList[0] > 250)
+            std::cout << "Hey bucko, calm down, I'm not implementing some fancy redering for this \n\n\n";
 
         if (saveSettings) {
             generateDirectory();
@@ -413,7 +431,7 @@ int App::setup() {
 #endif
 
     // Create window with graphics context
-    mWindow = glfwCreateWindow(1280, 720, "Ficus: CNDD & Fragmentation Simulation", nullptr, nullptr);
+    mWindow = glfwCreateWindow(1500, 1000, "Ficus: CNDD & Fragmentation Simulation", nullptr, nullptr);
     if (mWindow == nullptr)
         return 1;
     glfwMakeContextCurrent(mWindow);
@@ -458,7 +476,6 @@ void App::generateDirectory() {
     settingsDirectory =  oss.str();
 
 }
-
 
 
 // Parameters
@@ -706,8 +723,5 @@ void App::updateSim() {
 
     delete mSim; 
     mSim = new Simulation(par);
-
-   //mSim = std::make_unique<Simulation>(par);
-   // mDrawForest = std::make_unique<drawForest>(mSim->getForest(0));
 
 }

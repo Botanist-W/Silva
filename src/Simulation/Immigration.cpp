@@ -1,12 +1,41 @@
 #include "Immigration.h"
 
 
-void metaImmigration::handleImmigration(int& step) {
+void metaImmigration::buildMetaCom(std::vector<indiv> spLib) {
+	
+	metaCom.reserve(mParams.metaComSize);
+
+	for (size_t i = 0; i < mParams.metaComSize; i++) {
+	
+		metaCom.emplace_back(spLib[Crand::rand_int(0, spLib.size() - 1)]);
+		
+	}
 
 };
 
+void networkImmigration::buildMetaCom(std::vector<indiv> spLib) {
+}
+
+void metaImmigration::handleImmigration(int& step) {
+
+	for (size_t i = 0; i < mForests.size(); i++) {
+		if (mDist(gen)) {
+			mForests[i]->addTree(value(point(Crand::randFloat(0, mForests[i]->bounds), Crand::randFloat(0, mForests[i]->bounds)), metaCom[Crand::rand_int(0, metaCom.size() - 1)]));
+			doesImmigrationOccur = true;
+		}
+		else
+		{
+			doesImmigrationOccur = false;
+		}
+
+	}
+};
+
 bool metaImmigration::mOccurence(int& ID, int& step) {
-	return false;
+	if (doesImmigrationOccur)// NOPE ! Unlesss!
+		return true;
+	else
+		return false;
 };
 
 void networkImmigration::handleImmigration(int& step) {
@@ -15,9 +44,9 @@ void networkImmigration::handleImmigration(int& step) {
 
 		if (temporalImmigrationBool[i][step]) { // Does immigration occur?
 			// Immigration occurs , so this will be the step
-			mForests[i].removeTree(mForests[i].randomTree());
+			mForests[i]->removeTree(mForests[i]->randomTree());
 			// Take a random individual from the target forest
-			mForests[i].addTree(mForests[temporalImmigrationMap[i][step]].randomTree());
+			mForests[i]->addTree(mForests[temporalImmigrationMap[i][step]]->randomTree());
 		}
 	}
 } // And that's it :) if immigration does not occur, it doesn't matter , nothing else has to happen 

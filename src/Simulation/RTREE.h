@@ -72,7 +72,7 @@ public:
 
 	void buildFromLib(std::vector<indiv>&);
 
-	void build(std::vector<value>&);
+	void build(std::vector<value>&); // This is the important bit 
 
 private:
 	params& mParams;

@@ -10,9 +10,9 @@ void Simulation::setup() {
 	
 	for (int i = 0; i < mParams.numFragments; i++) {
 		// Creating instances of Forest class and assigning them an ID just as a guard against stuff
-		forests.emplace_back(Forest(mParams, i));
-		forests[i].buildFromLib(spLibrary);
-		std::cout << "Rtree size: " << forests[i].tree.size();
+		forests.emplace_back(std::make_shared<Forest>(mParams, i));
+		forests[i]->buildFromLib(spLibrary);
+		std::cout << "Rtree size (N): " << forests[i]->tree.size() << "\n";
 	}
 	
 	outputCapture.reserve(mParams.timeSteps);
@@ -46,7 +46,10 @@ void Simulation::buildSpLib() {
 void Simulation::whichImmigration() {
 	
 	if (mParams.metaCommunityImmigration)
-		immigration = std::make_unique<metaImmigration>(mParams);
+	{
+		immigration = std::make_unique<metaImmigration>(mParams, forests);
+		immigration->buildMetaCom(spLibrary);
+	}
 	else 
 		immigration = std::make_unique<networkImmigration>(mParams, forests);
 	
@@ -54,51 +57,57 @@ void Simulation::whichImmigration() {
 };
 
 void Simulation::basicRun() {
+	int captures = mParams.timeSteps / mParams.captureRate;
 
 	int timeStep = 0;
 
-	for (int repeat = 0; repeat < mParams.numRep; repeat++) {
+	// A bunch of nested loops are a sign of a good coder right?? 
+	for (size_t repeat = 0; repeat < mParams.numRep; repeat++) {
 		// TODO: Implement multithreading for this repeat
 		
-		// TODO: set up a loop in which a capture occurs 
+		for (size_t capture = 0; capture < captures; capture++) {
+			// TODO: set up a loop in which a capture occurs 
 
-		for (int i = 0; i < mParams.timeSteps; i++) { 
+			for (int i = 0; i < mParams.captureRate; i++) { // using int becuase I aint changing things
 
-			auto start = std::chrono::high_resolution_clock::now();
-			immigration->handleImmigration(i);
+				auto start = std::chrono::high_resolution_clock::now();
 
-			for (int f = 0; f < forests.size(); f++) { // using int for the ID in m Occurence 
+				immigration->handleImmigration(i);
 
-				if (immigration->mOccurence(f, i) == false) {
+				for (int f = 0; f < forests.size(); f++) { // using int for the ID in m Occurence 
 
-					forests[f].localStep(); // TODO: pass in timestep here 
+					if (immigration->mOccurence(f, i) == false) {
+
+						forests[f]->localStep(); // TODO: pass in timestep here 
+
+					}
 
 				}
+				timeStep++;
 
-			}
-			timeStep++;
+				auto end = std::chrono::high_resolution_clock::now();
+				std::chrono::duration<double> duration = end - start;
 
-			auto end = std::chrono::high_resolution_clock::now();
-			std::chrono::duration<double> duration = end - start;
+				// Print the elapsed time
+				std::cout << "Elapsed time: " << duration.count() << " seconds\n";
 
-			// Print the elapsed time
-			std::cout << "Elapsed time: " << duration.count() << " seconds\n";
+			}  // Step  (in between capture)
 
-		}
+		} // Capture 
 
 		
-		for (int i = 0; i < forests.size(); i++) 
-			outputCapture[i] = forests[i].forestCapture(repeat); //problem
+		//for (int i = 0; i < forests.size(); i++) 
+			//outputCapture[i] = forests[i]->forestCapture(repeat); //problem
 		
 
-	}
+	} // Repeat
 
 	//speciesCount::forestsToCSV(outputCapture, mParams.rtreePath); // TODO : Implement a better output method :) 
 
 };
 
 
-Forest& Simulation::getForest(int id) {
+std::shared_ptr<Forest> Simulation::getForest(int id) {
 
 	return forests[id];
 

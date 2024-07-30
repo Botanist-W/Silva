@@ -32,17 +32,18 @@ public:
 
 	void basicRun(); // Test without threads
 
-	Forest& getForest(int id);
+	std::shared_ptr<Forest> getForest(int id); // could try weak pointer 
 
 	// vectors for output << a sum of all individual forest counts >> R friendly data 
-	std::vector<std::vector<std::pair<int, value>>> outputCapture;
+	// These are all just terrible -- > Be better
+	std::vector<std::vector<std::pair<int, value>>> outputCapture; 
 	std::vector<std::tuple<int, int, int>>  outputSpCount;
 
 private:
 	// Constructor stuff
 	void setup();
 	void buildSpLib();
-	void whichImmigration();
+	void whichImmigration(); // Terrible naming as ususal
 	//jytfiyf
 	// ~ Constructor stuff
 
@@ -56,7 +57,7 @@ private:
 
 	params& mParams;
 
-	std::vector<Forest> forests; // TODO: SET UP
+	std::vector<std::shared_ptr<Forest>> forests; 
 
 	std::unique_ptr<Immigration> immigration; // Immigration type
 	
