@@ -4,6 +4,11 @@
 
 #include <string>
 #include <vector>
+#include <iostream>
+#include <sstream>
+#include <iomanip>
+#include <fstream>
+#include <filesystem>
 
 struct params { // 
 
@@ -41,6 +46,35 @@ struct params { //
     float extinctionRate = 0.0001;
 
 
+
+};
+
+
+class settings {
+public:
+
+    settings(params& _params) : mParams(_params) {};
+
+    // TODO: Offload to the settings class
+    std::string dataOutputPath = "";
+    std::string settingsPath = "";
+    std::string settingsDirectory = "";
+
+
+    void generateDirectory();
+
+    void saveParams();
+    void loadParams();
+
+    void loadNodeMap();
+    void saveNodeMap();
+
+    void loadSizeList();
+    void saveSizeList();
+
+private: 
+
+    params& mParams;
 
 };
 

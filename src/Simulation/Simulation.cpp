@@ -59,46 +59,46 @@ void Simulation::whichImmigration() {
 void Simulation::basicRun() {
 	int captures = mParams.timeSteps / mParams.captureRate;
 
-	int timeStep = 0;
+	int rep = 0; // I dont like all the naming conven
 
 	// A bunch of nested loops are a sign of a good coder right?? 
 	for (size_t repeat = 0; repeat < mParams.numRep; repeat++) {
-		// TODO: Implement multithreading for this repeat
-		
+		// TODO: Implement multithreading for the repeat
+
+		int timeStep = 0;
+
 		for (size_t capture = 0; capture < captures; capture++) {
 			// TODO: set up a loop in which a capture occurs 
+			auto start = std::chrono::high_resolution_clock::now();
+			for (int step = 0; step < mParams.captureRate; step++) { // using int becuase I aint changing things
 
-			for (int i = 0; i < mParams.captureRate; i++) { // using int becuase I aint changing things
+				immigration->handleImmigration(step);
 
-				auto start = std::chrono::high_resolution_clock::now();
+				for (int forest = 0; forest < forests.size(); forest++) { // using int for the ID in m Occurence 
 
-				immigration->handleImmigration(i);
+					if (immigration->mOccurence(forest, step) == false) {
 
-				for (int f = 0; f < forests.size(); f++) { // using int for the ID in m Occurence 
-
-					if (immigration->mOccurence(f, i) == false) {
-
-						forests[f]->localStep(); // TODO: pass in timestep here 
+						forests[forest]->localStep(); // TODO: pass in timestep here << SHOULD BE USING A MAP OMG
 
 					}
 
 				}
 				timeStep++;
-
-				auto end = std::chrono::high_resolution_clock::now();
-				std::chrono::duration<double> duration = end - start;
-
-				// Print the elapsed time
-				std::cout << "Elapsed time: " << duration.count() << " seconds\n";
+		
 
 			}  // Step  (in between capture)
 
+			auto end = std::chrono::high_resolution_clock::now();
+			std::chrono::duration<double> duration = end - start;
+			std::cout << "Elapsed time: " << duration.count() << " seconds\n";
+
+			for (auto& forest : forests)
+				forest->captureForest(rep, timeStep); // Beautiful ...... I hope
+
 		} // Capture 
 
-		
-		//for (int i = 0; i < forests.size(); i++) 
-			//outputCapture[i] = forests[i]->forestCapture(repeat); //problem
-		
+		// Big desitions here
+		// Add the captures to the data class
 
 	} // Repeat
 

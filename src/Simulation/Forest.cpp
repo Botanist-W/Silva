@@ -97,7 +97,7 @@ void Forest::localStep() {
 };
 
 
-
+// TODO: Go back in time and be more prepared for your deadline 
 void Forest::localExtinction(int& extSp, std::vector<indiv>& spLib) {
 
 	for (const auto& element : tree) {
@@ -131,17 +131,22 @@ void Forest::localExtinction(int& extSp, std::vector<indiv>& spLib) {
 };
 
 
-// Take a snapshot of the thing 
-std::vector<std::pair<int, value>> Forest::forestCapture(int& timeStep) {
+void Forest::captureForest(int repeat,int timeStep) {
 
-	std::vector<std::pair<int, value>> Capture;
-
-	for (const auto& element : tree) 
-		Capture.emplace_back(std::pair<int, value>(timeStep, element));
-	
-	return Capture;
+	for (const auto& element : tree)
+		// Repeat, Forest, timestep, value
+		forestCaptureMap.emplace_back(std::tuple<int, int ,int ,value> (repeat, forestID, timeStep, element));
 
 };
+
+std::vector<std::tuple<int, int, int, value>>* Forest::getCaptureMap() {
+	
+	return &forestCaptureMap;
+
+};
+
+
+
 
 // TODO : Implement
 void Forest::buildFromForest(std::vector<value>& input) {
@@ -149,7 +154,7 @@ void Forest::buildFromForest(std::vector<value>& input) {
 	// If the input is larger than this forest instance then it can use a random sample from the input 
 	int setSize = Crand::rand_int(0, (input.size() - bounds));
 
-	for (int i = setSize ; i < numIndiv + setSize; i++) 
+	for (int i = setSize; i < numIndiv + setSize; i++)
 		tree.insert(input[i]); // This would be interesting to see how this works :/ because of the R tree not being linear
 
 };

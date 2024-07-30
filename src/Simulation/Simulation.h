@@ -28,8 +28,6 @@ public:
 
 	void run(); // Main function for this 
 
-	void output();
-
 	void basicRun(); // Test without threads
 
 	std::shared_ptr<Forest> getForest(int id); // could try weak pointer 
@@ -44,16 +42,7 @@ private:
 	void setup();
 	void buildSpLib();
 	void whichImmigration(); // Terrible naming as ususal
-	//jytfiyf
 	// ~ Constructor stuff
-
-	// Run stuff
-	
-	// ~ Run stuff
-
-	// Output Stuff
-	void capture(std::string&);
-	// ~ Output stuff
 
 	params& mParams;
 
