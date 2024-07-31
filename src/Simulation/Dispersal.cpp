@@ -1,6 +1,6 @@
 
 #include "Dispersal.h"
-
+#include "pch.h"
 
 
 
@@ -9,28 +9,20 @@
 
 point dispersal::dispersalKernal(value& parent) {
     // remember that "a" (parent.dispersal) is not the raw mean dispersal distance but insead a transformed value...
-    // float x = a * sqrt(pow((1- Crand::randFloat(0 , 1)), (1/1-par.b))-1);
-    // logger std::cout << "Distance from parent"  << x << "\n";
 
     // This is the fancy part <-- iverse of a 2dt kernel
-    float dispDis = parent.second.dispersal * sqrt(pow((1 - Crand::randFloat(0, 1)), (1 / (1 - 2))) - 1);
+    float dispDis = parent.second.dispersal * sqrt(pow((1 - Crand::randFloat(0, 1)), (1 / (1 - 2))) - 1); // TODO: SET DISPERSALLLLL!!!
 
     float r_angle = Crand::rand_double(0, 2) * Pi; // 
 
-    // Just a more conviluded way but I want performance 
-    //point pPos = parent.first;
-    //float pX = pPos.get<0>();
-    //float pY = pPos.get<1>();
-    //float rX = pPos.get<0>() + cos(r_angle) * dispDis;
-    //float rY = pPos.get<1>() + sin(r_angle) * dispDis;
-   // return point(rX, rY); // This output the new point for dispersal (The same as May et al, 2015 etc) THANKS FELIX!
+    LOG_TRACE("Dispersal distance: : {}", dispDis);
 
     return point((parent.first.get<0>() + cos(r_angle) * dispDis), (parent.first.get<1>() + sin(r_angle) * dispDis));
 
 };
 
-// FRAGMENTED DISPERSAL
 
+// FRAGMENTED DISPERSAL
 point fragmentedDisp::disperse(value& parent) {
 
     return dispersalKernal(parent); // Keeping it simple here
@@ -44,50 +36,50 @@ bool fragmentedDisp::inBounds(point& pos){
     else
         return false;
 }
-
-
 // ~ fragmented dispersal
 
 
 // Fragmented Search
-
-
 std::vector<value> fragmentedDisp::search(point& sought, float& searchArea) {
     return mForest.search(sought, searchArea); // just a pass along but it works I guesss
 };
-
-
-
 // ~ Fragmented Search
 
 
 // CONTINUOUS DISPERSAL
-
 point continuousDisp::disperse(value& parent) {
     point pos = dispersalKernal(parent);
     return dispTorus(pos);
 };
-
 
 point continuousDisp::dispTorus(point& pos) {
 
     double posX = pos.get<0>();
     double posY = pos.get<1>();
 
-    if (posX > mForest.bounds)
+    if (posX > mForest.bounds) {
         posX = posX - mForest.bounds;
-    else if (posX < 0)
+        LOG_TRACE("Dispersed right");
+    }
+    else if (posX < 0) {
         posX = mForest.bounds + posX; // This may become problematic in some cases (when dispersal is very far) 
-    if (posY > mForest.bounds)
+        LOG_TRACE("Dispersed left");
+    }
+    if (posY > mForest.bounds) {
         posY = posY - mForest.bounds;
-    else if (posY < 0)
+        LOG_TRACE("Dispersed top");
+    }
+    else if (posY < 0) {
         posY = mForest.bounds + posY;
+        LOG_TRACE("Dispersed bottom");
+    }
+
 
     if (posX >= 0 && posY >= 0)
         return point(posX, posY);
     else {
-        std::cout << "error in dispersal (too far): \n Returning random point \n";
-        return point(Crand::rand_double(0, mForest.bounds), Crand::rand_double(0, mForest.bounds));
+        LOG_WARN("error in dispersal (too far): Returning random point");
+        return point(Crand::rand_double(0, mForest.bounds), Crand::rand_double(0, mForest.bounds)); // This should be very rare!!!
     }
 };
 

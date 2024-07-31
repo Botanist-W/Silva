@@ -5,6 +5,7 @@
 #include "randFuncs.h"
 #include "RTREE.h"
 #include "Forest.h"
+#include "Log.h"
 
 class Forest; // Some nice forward declaration  :)))
 
@@ -18,6 +19,7 @@ class Immigration
 public:
 
 	Immigration(params& _params, std::vector<std::shared_ptr<Forest>> _forests) : mParams(_params) , mForests(_forests){
+
 	};
 
 	virtual void handleImmigration(int& step) = 0;
@@ -37,8 +39,7 @@ public:
 class metaImmigration : public Immigration {
 public:
 	
-	metaImmigration(params& _params, std::vector<std::shared_ptr<Forest>> _forests) : Immigration(_params, _forests) {
-	};
+	metaImmigration(params& _params, std::vector<std::shared_ptr<Forest>> _forests);
 
 	void handleImmigration(int& step) override;
 
@@ -59,13 +60,7 @@ private:
 class networkImmigration : public Immigration { // Passer class --> just preverves some code that is used in both network immigration senaios but not the metaCommunity immigatration 
 public: 
 	
-	networkImmigration(params& _params, std::vector<std::shared_ptr<Forest>> _forests) : Immigration(_params, _forests) {
-		temporalImmigrationMap = std::vector<std::vector<int>>(mParams.numFragments, std::vector<int>(mParams.timeSteps)); // Setting the size!
-		temporalImmigrationBool = std::vector<std::vector<bool>>(mParams.numFragments, std::vector<bool>(mParams.timeSteps));
-
-		createTemporaMap(mParams.nodeMap);
-
-	}
+	networkImmigration(params& _params, std::vector<std::shared_ptr<Forest>> _forests);
 
 	void handleImmigration(int& step) override;
 
@@ -74,8 +69,6 @@ public:
 	void buildMetaCom(std::vector<indiv> spLib) override;
 
 private:
-
-	
 
 	
 	std::vector<std::vector<bool>> temporalImmigrationBool;// // To check whether immigration occurs at all for that Forest << Even nessasay ?? >> probs not 

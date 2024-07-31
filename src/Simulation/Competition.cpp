@@ -1,5 +1,5 @@
 #include "competition.h"
-
+#include "pch.h"
 
 // 
 double competition::densityKernel(point& recruit, point& neighbour, float& c) { // Double may actually be useful here, because need some fine stuff, but watch out for performance 
@@ -16,6 +16,8 @@ double neutralComp::compIndex(std::vector<value>& searchResults, value& parent, 
 
 	for (auto& i : searchResults) 
 		cumDensity += densityKernel(i.first, recPos, mForest.HNDD); // Neutral so no worries
+
+	LOG_TRACE("NCI: {}", cumDensity);
 
 	return cumDensity;
 
@@ -40,6 +42,9 @@ double cnddComp::compIndex(std::vector<value>& searchResults, value& parent, poi
 		else
 			cumDensity += densityKernel(i.first, recPos, mForest.HNDD); 
 	}
+
+	LOG_TRACE("NCI: {}", cumDensity);
+
 	return cumDensity;
 
 }

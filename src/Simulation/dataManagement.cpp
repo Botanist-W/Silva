@@ -6,7 +6,7 @@ void data::setPath(std::string& path) {
 
 };
 
-void data::setName(std::stirng& name) {
+void data::setName(std::string& name) {
 
 };
 

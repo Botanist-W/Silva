@@ -27,9 +27,20 @@ struct indiv {
             dispersal == other.dispersal &&
             HNDD == other.HNDD &&
             CNDD == other.CNDD;
-    }
+    } // Still don't know what this really does << do it for observation? 
 
 };
+
+// Note: I could reduce the size of the indiv struct because a lot of the member vars arent used but I might want to use them in the future 
+//       and
+
+//  The idea of the observation is a nice when tring to replicate "real data" << plus it saves on data over sotring the whole indiv 
+struct observasion {
+    int repeat, forest, timeStep, species;
+    float x, y;
+};
+
+// What is better for memory? this or tuple<int,int,int,int,float,float>  VERY CLUMSY tho 
 
 
 

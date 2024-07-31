@@ -4,7 +4,7 @@ cmake_minimum_required (VERSION 3.20)
 
 cmake_policy(SET CMP0091 NEW)
 
-set(VCPKG_ROOT "C:/dev/vcpkg") # My vcpkg isnt playing nice
+set(VCPKG_ROOT "C:/dev/vcpkg") # My vcpkg isnt playing nice So I am setting manually (boost is too big to just add to vendor)
 set(VCPKG_INCLUDE_DIR "${VCPKG_ROOT}/installed/x64-windows/include")
 
 message(STATUS "
@@ -36,27 +36,36 @@ include_directories(${VCPKG_INCLUDE_DIR})
 
 add_subdirectory(vendor/GLFW)
 add_subdirectory(vendor/imgui)
+add_subdirectory(vendor/spdlog)
 
 file(GLOB_RECURSE MY_SOURCES 
     "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/*.h"
 )
 
+# Add the precompiled header
+set(PCH_HEADER "${CMAKE_CURRENT_SOURCE_DIR}/src/pch.h")
+set(PCH_SOURCE "${CMAKE_CURRENT_SOURCE_DIR}/src/pch.cpp")
+
 #find_package(Boost REQUIRED)
-add_executable(Silva ${MY_SOURCES})
+add_executable(Silva ${MY_SOURCES} ${PCH_SOURCE})
 
 target_compile_definitions(Silva PUBLIC RESOURCE_PATH="${CMAKE_CURRENT_SOURCE_DIR}/data/")
+
+target_precompile_headers(Silva PRIVATE ${PCH_HEADER})
 
 # Include directories and link libraries
 target_include_directories(Silva PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/src
-    C:/dev/vcpkg/installed/x64-windows/include
+    ${VCPKG_INCLUDE_DIR}
     ${CMAKE_CURRENT_SOURCE_DIR}/vendor/GLFW/include
     ${CMAKE_CURRENT_SOURCE_DIR}/vendor/imgui
+    ${CMAKE_CURRENT_SOURCE_DIR}/vendor/spdlog/include
 )
 
 target_link_libraries(Silva PUBLIC
     glfw
     ImGui
     opengl32
+    spdlog
 )

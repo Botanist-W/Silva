@@ -17,16 +17,11 @@ class Simulation
 {
 public:
 
-	Simulation(params& _params):
-		mParams(_params){
-		setup();
-		outputCapture = std::vector<std::vector<std::pair<int, value>>>(mParams.numFragments, std::vector<std::pair<int, value>>(mParams.timeSteps));
-		//basicRun();
-	}
+	Simulation(params& _params);
 
 	~Simulation() = default;
 
-	void run(); // Main function for this 
+	void run(); // Main function with threads hopefully
 
 	void basicRun(); // Test without threads
 
@@ -44,7 +39,7 @@ private:
 	void whichImmigration(); // Terrible naming as ususal
 	// ~ Constructor stuff
 
-	params& mParams;
+	params& mParams; // Do I need const & for thread access??  << Does this mean I need to give everthing a const reference? 
 
 	std::vector<std::shared_ptr<Forest>> forests; 
 

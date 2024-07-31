@@ -33,7 +33,7 @@ public:
 
 	neutralComp(Forest& _forest) :
 		competition(_forest) {
-
+		
 
 	};
 

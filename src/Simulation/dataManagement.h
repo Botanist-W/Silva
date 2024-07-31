@@ -18,7 +18,7 @@ public:
 
 	void setPath(std::string& path);
 
-	void setName(std::stirng& name);
+	void setName(std::string& name);
 
 	void collectCaptureMaps(std::vector<std::shared_ptr<Forest>>& forests); // Reference to a vector of shared pointers... I'm so far down a rabbit hole, I have no idea what's going on but it keeps working
 

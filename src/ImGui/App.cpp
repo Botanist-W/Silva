@@ -1,5 +1,5 @@
 #include "App.h"
-
+#include "pch.h"
 
 App::App() {
     
@@ -362,7 +362,7 @@ void App::Run() {
         if (drawAForest && par.fragmentSizeList[0] < 250)
             mDrawForest->visualizeForest();
         else if(par.fragmentSizeList[0] > 250)
-            std::cout << "Hey bucko, calm down, I'm not implementing some fancy redering for this \n\n\n";
+            LOG_WARN("Hey bucko, calm down, I'm not implementing some fancy redering for this");
 
         if (saveSettings) {
             generateDirectory();
@@ -521,7 +521,7 @@ void App::saveParams() {
     file << "extinctionRate," << par.extinctionRate << "\n";
 
     file.close();
-    std::cout << "Settings saved to "  << std::endl;
+
 }
 
 void App::loadParams() { // Super inefficient but just being safe I guess
@@ -607,7 +607,7 @@ void App::loadParams() { // Super inefficient but just being safe I guess
     }
 
     file.close();
-    std::cout << "Settings loaded from " << settingsDirectory<< std::endl;
+    
 }
 // ~ Parameters
 

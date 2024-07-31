@@ -4,6 +4,7 @@
 #include "Silva.h"
 #include "ImGui/App.h"
 #include "Simulation/randFuncs.h"
+#include "Log.h"
 
 boost::random::mt19937 rng;
 
@@ -26,6 +27,8 @@ boost::random::mt19937 rng;
 
 int main()
 {
+	Log::Init(); // Being lazy here 
+
 	App app;
 
 	app.Run();

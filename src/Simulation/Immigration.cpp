@@ -1,4 +1,22 @@
 #include "Immigration.h"
+#include "pch.h"
+
+// Constructors
+
+metaImmigration::metaImmigration(params& _params, std::vector<std::shared_ptr<Forest>> _forests) : Immigration(_params, _forests) {
+	LOG_INFO("Using meta-community immigration");
+};
+
+
+networkImmigration::networkImmigration(params& _params, std::vector<std::shared_ptr<Forest>> _forests) : Immigration(_params, _forests) {
+	temporalImmigrationMap = std::vector<std::vector<int>>(mParams.numFragments, std::vector<int>(mParams.timeSteps)); // Setting the size!
+	temporalImmigrationBool = std::vector<std::vector<bool>>(mParams.numFragments, std::vector<bool>(mParams.timeSteps));
+	createTemporaMap(mParams.nodeMap);
+	LOG_INFO("Using network immigration");
+}
+
+
+
 
 
 void metaImmigration::buildMetaCom(std::vector<indiv> spLib) {
@@ -10,11 +28,11 @@ void metaImmigration::buildMetaCom(std::vector<indiv> spLib) {
 		metaCom.emplace_back(spLib[Crand::rand_int(0, spLib.size() - 1)]);
 		
 	}
-
+	LOG_TRACE("Built meta-community");
 };
 
 void networkImmigration::buildMetaCom(std::vector<indiv> spLib) {
-}
+} 
 
 void metaImmigration::handleImmigration(int& step) {
 
@@ -47,6 +65,7 @@ void networkImmigration::handleImmigration(int& step) {
 			mForests[i]->removeTree(mForests[i]->randomTree());
 			// Take a random individual from the target forest
 			mForests[i]->addTree(mForests[temporalImmigrationMap[i][step]]->randomTree());
+			LOG_TRACE("Immigration occured from fragment: {}", i);
 		}
 	}
 } // And that's it :) if immigration does not occur, it doesn't matter , nothing else has to happen 
@@ -70,12 +89,10 @@ void networkImmigration::createTemporaMap(std::vector<std::vector<float>>& nodes
 
 	for (size_t i = 0; i < nodes.size(); i++) {
 
-		//std::cout << "node: " << i << "\n";
 		std::discrete_distribution<int> dist(nodes[i].begin(), nodes[i].end()); // Store the immigration probability to other fragments here
 
 		for (int j = 0; j < mParams.timeSteps; j++) { // careful here, remeber this isnt the node map were making 
 
-			//std::cout << "timestep: " << j << " ";
 
 			if (mDist(gen)) {  // Generate random number & check if there is any immigration 
 
@@ -89,4 +106,5 @@ void networkImmigration::createTemporaMap(std::vector<std::vector<float>>& nodes
 			}
 		}
 	}
+	LOG_TRACE("Built temporal immigration map");
 };

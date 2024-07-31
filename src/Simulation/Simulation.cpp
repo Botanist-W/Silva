@@ -1,10 +1,16 @@
 #include "Simulation.h"
 
 
+Simulation::Simulation(params& _params) :
+	mParams(_params) {
+	setup();
+}
+
+
 void Simulation::setup() {
 	// Build a species library 
 	buildSpLib();
-	std::cout << "size of species library: " << spLibrary.size() << "\n";
+	LOG_INFO("size of species library: {} ", spLibrary.size());
 
 	whichImmigration();
 	
@@ -12,7 +18,7 @@ void Simulation::setup() {
 		// Creating instances of Forest class and assigning them an ID just as a guard against stuff
 		forests.emplace_back(std::make_shared<Forest>(mParams, i));
 		forests[i]->buildFromLib(spLibrary);
-		std::cout << "Rtree size (N): " << forests[i]->tree.size() << "\n";
+		LOG_INFO("Rtree size (N): {}", forests[i]->tree.size());
 	}
 	
 	outputCapture.reserve(mParams.timeSteps);
@@ -64,17 +70,26 @@ void Simulation::basicRun() {
 	// A bunch of nested loops are a sign of a good coder right?? 
 	for (size_t repeat = 0; repeat < mParams.numRep; repeat++) {
 		// TODO: Implement multithreading for the repeat
+		LOG_INFO("Repeat: {}", repeat);
 
 		int timeStep = 0;
 
 		for (size_t capture = 0; capture < captures; capture++) {
+
+			LOG_INFO("Capture: {}", capture);
+
 			// TODO: set up a loop in which a capture occurs 
 			auto start = std::chrono::high_resolution_clock::now();
+
 			for (int step = 0; step < mParams.captureRate; step++) { // using int becuase I aint changing things
+
+				LOG_INFO("time step: {}", timeStep);
 
 				immigration->handleImmigration(step);
 
 				for (int forest = 0; forest < forests.size(); forest++) { // using int for the ID in m Occurence 
+
+					LOG_INFO("Forest: {}", forest);
 
 					if (immigration->mOccurence(forest, step) == false) {
 
@@ -90,7 +105,9 @@ void Simulation::basicRun() {
 
 			auto end = std::chrono::high_resolution_clock::now();
 			std::chrono::duration<double> duration = end - start;
-			std::cout << "Elapsed time: " << duration.count() << " seconds\n";
+
+
+			LOG_INFO("Elapsed time between captures: {} seconds", duration.count());
 
 			for (auto& forest : forests)
 				forest->captureForest(rep, timeStep); // Beautiful ...... I hope

@@ -1,15 +1,15 @@
 #include "settings.h"
-
+#include "pch.h"
 void settings::generateDirectory() {
 
     std::ostringstream oss;
     oss << settingsPath
         << "Settings_"
-        << "nf" << par.numFragments << "_"
-        << "m" << par.m << "_"
-        << "sp" << par.numSpecies << "_"
-        << "td" << par.treeDensity << "_"
-        << "t" << par.timeSteps;
+        << "nf" << mParams.numFragments << "_"
+        << "m" << mParams.m << "_"
+        << "sp" << mParams.numSpecies << "_"
+        << "td" << mParams.treeDensity << "_"
+        << "t" << mParams.timeSteps;
 
     std::filesystem::create_directories(oss.str());
 
@@ -32,35 +32,35 @@ void settings::saveParams() {
     file << "Parameter,Value\n";
 
     // Write simulation settings
-    file << "timeSteps," << par.timeSteps << "\n";
-    file << "numRep," << par.numRep << "\n";
-    file << "numSpecies," << par.numSpecies << "\n";
-    file << "treeDensity," << par.treeDensity << "\n";
+    file << "timeSteps," << mParams.timeSteps << "\n";
+    file << "numRep," << mParams.numRep << "\n";
+    file << "numSpecies," << mParams.numSpecies << "\n";
+    file << "treeDensity," << mParams.treeDensity << "\n";
 
     // Write immigration settings
-    file << "metaCommunityImmigration," << par.metaCommunityImmigration << "\n";
-    file << "metaComSize," << par.metaComSize << "\n";
+    file << "metaCommunityImmigration," << mParams.metaCommunityImmigration << "\n";
+    file << "metaComSize," << mParams.metaComSize << "\n";
 
     // Write fragment interactions
-    file << "numFragments," << par.numFragments << "\n";
-    file << "equalFragmentSize," << par.equalFragmentSize << "\n";
-    file << "size," << par.size << "\n";
+    file << "numFragments," << mParams.numFragments << "\n";
+    file << "equalFragmentSize," << mParams.equalFragmentSize << "\n";
+    file << "size," << mParams.size << "\n";
 
     // Write ecological settings
-    file << "fragmented," << par.fragmented << "\n";
-    file << "neutralComp," << par.neutralComp << "\n";
-    file << "searchArea," << par.searchArea << "\n";
-    file << "b1," << par.b1 << "\n";
-    file << "b2," << par.b2 << "\n";
-    file << "m," << par.m << "\n";
-    file << "dispersalDis," << par.dispersalDis << "\n";
-    file << "mort," << par.mort << "\n";
-    file << "HNDD," << par.HNDD << "\n";
-    file << "CNDD," << par.CNDD << "\n";
-    file << "extinctionRate," << par.extinctionRate << "\n";
+    file << "fragmented," << mParams.fragmented << "\n";
+    file << "neutralComp," << mParams.neutralComp << "\n";
+    file << "searchArea," << mParams.searchArea << "\n";
+    file << "b1," << mParams.b1 << "\n";
+    file << "b2," << mParams.b2 << "\n";
+    file << "m," << mParams.m << "\n";
+    file << "dispersalDis," << mParams.dispersalDis << "\n";
+    file << "mort," << mParams.mort << "\n";
+    file << "HNDD," << mParams.HNDD << "\n";
+    file << "CNDD," << mParams.CNDD << "\n";
+    file << "extinctionRate," << mParams.extinctionRate << "\n";
 
     file.close();
-    std::cout << "Settings saved to " << std::endl;
+    LOG_INFO("Settings saved to: {}", dataOutputPath);
 }
 
 void settings::loadParams() { // Super inefficient but just being safe I guess
@@ -146,7 +146,7 @@ void settings::loadParams() { // Super inefficient but just being safe I guess
     }
 
     file.close();
-    std::cout << "Settings loaded from " << settingsDirectory << std::endl;
+    LOG_INFO("Settings loaded from  {}", settingsDirectory);
 }
 // ~ Parameters
 
@@ -253,4 +253,17 @@ void settings::loadSizeList() {
     file.close();
 
 
+}
+
+
+
+
+// Helper functions 
+
+
+void settings::ResizeMatrix(int newSize) {
+    mParams.nodeMap.resize(newSize);
+    for (auto& row : mParams.nodeMap) {
+        row.resize(newSize, 0.0f);
+    }
 }

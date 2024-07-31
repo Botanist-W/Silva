@@ -42,10 +42,10 @@ public:
 	};
 
 	~rTree() {
-		//std::cout << "Deleted R tree \n";
+		
 	};
 
-	// Values copied from settings --> just to make my life easier in future classes <-- dont care if its bad practice at this point 
+	// Values copied from settings --> just to make my life easier in future classes <-- dont care if its bad practice at this point << STOP THIS 
 	float searchArea;
 	float bounds;
 	float treeDensity;

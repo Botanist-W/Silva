@@ -6,6 +6,7 @@
 #include "settings.h"
 #include "RTREE.h"
 #include "Dispersal.h"
+#include "Log.h"
 #include "Competition.h"
 #include <memory>
 #include <iostream>
@@ -24,8 +25,8 @@ public:
 
 	int& forestID; // Just to keep track of the ID of the thing 
 
-	Forest(params& _params, int& _ID) : rTree(_params), forestID(_ID) {
-		std::cout << "Created forest: " << forestID << "\n";
+	Forest(params& _params, int& _ID) : rTree(_params), forestID(_ID) { 
+		LOG_INFO("Created forest: {}", forestID);
 		//searchResults.reserve(Pi*(searchArea*searchArea)*treeDensity*2); // Reserving twice the average expected number of trees returned in each search to prevent reallocation
 		setParams();
 		setMethods();

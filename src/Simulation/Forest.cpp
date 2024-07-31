@@ -53,22 +53,18 @@ void Forest::localStep() {
 		// OR
 		// I could be lazy :)
 		if (disp->inBounds(recPos) == false) {
-			std::cout << "out of bounds\n";
+			LOG_TRACE ("Dispersal out of bounds");
 			continue; // Restart dispersal if not in bounds 
 		}
 		
 		searchResults = search(recPos, searchArea);
 
-		std::cout << "parent position: " << parent.first.get<0>() << " , " << parent.first.get<1>() << "\n"; // Working
-		std::cout << "recruit position: " << recPos.get<0>() << " , " << recPos.get<1>() << "\n"; // go back to construction 
-		std::cout << "No. search results: " << searchResults.size() << "\n";
+		LOG_TRACE("Parent position: ({}, {})", parent.first.get<0>(), parent.first.get<1>());
+		LOG_TRACE("Recruit position: ({}, {})", recPos.get<0>(), recPos.get<1>());
+		LOG_TRACE("Number of search results: {}", searchResults.size());
 
-		if(searchResults.size() > 2){
-			std::cout << "Searching\n";
-		}
-		else
-		{
-			std::cout << "error in searching, no trees around, returning random tree  \nFOREST:  " << forestID << "\n";
+		if(searchResults.size() < 2){	
+			LOG_WARN("error in searching, no trees around, returning random tree");
 			tree.insert(value(point(Crand::rand_double(0, bounds), Crand::rand_double(0, bounds)), randomTree().second));
 			break;
 		}
@@ -76,18 +72,20 @@ void Forest::localStep() {
 		float NCI = comp->compIndex(searchResults, parent, recPos); // Main TODO: Figure out how this works 
 
 		float pNCI = 1 / (1 + NCI);
-		std::cout << "NCI:  " << NCI << "\n";
+
+		LOG_TRACE ("Probability of success: {} ", pNCI);
+
 		float compare = Crand::randFloat(0, 1);
 
 		// Main check for whether recruitment was successfull 
 		if (pNCI < Crand::randFloat(0,1)) { // Can alter this later ://
-			std::cout << "Yipee" << pNCI << "\n";
+			LOG_TRACE("Recruitment SUCCESS");
 			tree.insert(value(recPos, parent.second));
 			break;
 		} 
 		else
 		{
-			std::cout << "Oh dear" << pNCI << "\n";
+			LOG_TRACE("Recruitment FAIL");
 			searchResults.clear();
 			continue;
 		}
