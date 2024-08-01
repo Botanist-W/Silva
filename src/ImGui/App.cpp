@@ -323,6 +323,9 @@ void App::Menu() {
         mSim->basicRun();
     }
 
+    if (im::Button("Update sim"))
+        updateSim();
+
     if (im::Checkbox("Show first fragment: ", &drawAForest)) {
 
         mDrawForest = std::make_unique<drawForest>(mSim->getForest(0));

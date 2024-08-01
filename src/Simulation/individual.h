@@ -10,8 +10,6 @@ struct indiv {
     int uniqueID;
     int species;
 
-    float survivalProb;
-
     float dispersal;
 
     float HNDD;
@@ -23,7 +21,6 @@ struct indiv {
     bool operator==(const indiv& other) const {
         return uniqueID == other.uniqueID &&
             species == other.species &&
-            survivalProb == other.survivalProb &&
             dispersal == other.dispersal &&
             HNDD == other.HNDD &&
             CNDD == other.CNDD;
@@ -31,18 +28,24 @@ struct indiv {
 
 };
 
-// Note: I could reduce the size of the indiv struct because a lot of the member vars arent used but I might want to use them in the future 
-//       and
+//  The idea of the observation is a nice when tring to replicate "real data"
+struct observation {
+    observation(int _repeat, int _forest, int _timeStep, int _uniqueID, int _species, float _x, float _y) :
+        repeat(_repeat),
+        forest(_forest),
+        timeStep(_timeStep),
+        uniqueID(_uniqueID),
+        species(_species),
+        x(_x),
+        y(_y) {}
 
-//  The idea of the observation is a nice when tring to replicate "real data" << plus it saves on data over sotring the whole indiv 
-struct observasion {
-    int repeat, forest, timeStep, species;
+    int repeat;
+    int forest;
+    int timeStep;
+    int uniqueID;
+    int species;
     float x, y;
 };
-
-// What is better for memory? this or tuple<int,int,int,int,float,float>  VERY CLUMSY tho 
-
-
 
 #endif // !INDIV
 

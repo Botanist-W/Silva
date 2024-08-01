@@ -3,12 +3,12 @@
 
 // Constructors
 
-metaImmigration::metaImmigration(params& _params, std::vector<std::shared_ptr<Forest>> _forests) : Immigration(_params, _forests) {
+metaImmigration::metaImmigration(params& _params) : Immigration(_params) {
 	LOG_INFO("Using meta-community immigration");
 };
 
 
-networkImmigration::networkImmigration(params& _params, std::vector<std::shared_ptr<Forest>> _forests) : Immigration(_params, _forests) {
+networkImmigration::networkImmigration(params& _params) : Immigration(_params) {
 	temporalImmigrationMap = std::vector<std::vector<int>>(mParams.numFragments, std::vector<int>(mParams.timeSteps)); // Setting the size!
 	temporalImmigrationBool = std::vector<std::vector<bool>>(mParams.numFragments, std::vector<bool>(mParams.timeSteps));
 	createTemporaMap(mParams.nodeMap);
@@ -28,18 +28,20 @@ void metaImmigration::buildMetaCom(std::vector<indiv> spLib) {
 		metaCom.emplace_back(spLib[Crand::rand_int(0, spLib.size() - 1)]);
 		
 	}
-	LOG_TRACE("Built meta-community");
+	LOG_TRACE("Built meta-community {}", metaCom.size());
 };
 
 void networkImmigration::buildMetaCom(std::vector<indiv> spLib) {
 } 
 
-void metaImmigration::handleImmigration(int& step) {
+void metaImmigration::handleImmigration(int timeStep, std::vector<std::shared_ptr<Forest>> forests) {
 
-	for (size_t i = 0; i < mForests.size(); i++) {
+	for (size_t i = 0; i < forests.size(); i++) {
 		if (mDist(gen)) {
-			mForests[i]->addTree(value(point(Crand::randFloat(0, mForests[i]->bounds), Crand::randFloat(0, mForests[i]->bounds)), metaCom[Crand::rand_int(0, metaCom.size() - 1)]));
+			forests[i]->removeTree(forests[i]->randomTree());
+			forests[i]->addTree(value(point(Crand::randFloat(0, forests[i]->bounds), Crand::randFloat(0, forests[i]->bounds)), metaCom[Crand::rand_int(0, metaCom.size() - 1)]));
 			doesImmigrationOccur = true;
+			LOG_TRACE("Immigration has Occured");
 		}
 		else
 		{
@@ -56,18 +58,21 @@ bool metaImmigration::mOccurence(int& ID, int& step) {
 		return false;
 };
 
-void networkImmigration::handleImmigration(int& step) {
-
-	for (size_t i = 0; i < mForests.size(); i++) {
-
-		if (temporalImmigrationBool[i][step]) { // Does immigration occur?
+void networkImmigration::handleImmigration(int timeStep, std::vector<std::shared_ptr<Forest>> forests) {
+	
+	for (int i = 0; i < forests.size(); i++) {
+		
+		if (temporalImmigrationBool[i][timeStep]) { // Does immigration occur?
 			// Immigration occurs , so this will be the step
-			mForests[i]->removeTree(mForests[i]->randomTree());
+			forests[i]->removeTree(forests[i]->randomTree());
+
 			// Take a random individual from the target forest
-			mForests[i]->addTree(mForests[temporalImmigrationMap[i][step]]->randomTree());
-			LOG_TRACE("Immigration occured from fragment: {}", i);
+			forests[i]->addTree(forests[temporalImmigrationMap[i][timeStep]]->randomTree());
+
+			LOG_TRACE("Immigration occured from fragment: {} to {}", i , temporalImmigrationMap[i][timeStep]);
 		}
 	}
+	
 } // And that's it :) if immigration does not occur, it doesn't matter , nothing else has to happen 
 
 // Important note: This DOES NOT prevent a normal timestep from occuring!! Implement that into each thread!!! it could mean a bit quicker maybe??? 
@@ -86,7 +91,7 @@ bool networkImmigration::mOccurence(int& ID, int& step) {
 
 
 void networkImmigration::createTemporaMap(std::vector<std::vector<float>>& nodes) { // This may be a little slow for the int based thing but not much of a differences because very scalable 
-
+	
 	for (size_t i = 0; i < nodes.size(); i++) {
 
 		std::discrete_distribution<int> dist(nodes[i].begin(), nodes[i].end()); // Store the immigration probability to other fragments here
@@ -102,9 +107,67 @@ void networkImmigration::createTemporaMap(std::vector<std::vector<float>>& nodes
 			}
 			else {
 				temporalImmigrationBool[i][j] = false;
-				temporalImmigrationMap[i][j] = i;
+				temporalImmigrationMap[i][j] = i; // Just setting it to the same fragment as a 
 			}
 		}
 	}
 	LOG_TRACE("Built temporal immigration map");
+	//printNodes(nodes); NOT THREAD SAFE!!!! SO watch out 
+	//printImmigrationMap();
+};
+
+
+void networkImmigration::printNodes(std::vector<std::vector<float>>& nodes) {
+	
+	LOG_DEBUG("Printing nodes: ");
+
+	for (int i = 0; i < nodes.size(); i++) {
+		
+		for (int j = 0; j < nodes[i].size(); j++) {
+			
+			std::cout << " ," << nodes[i][j];
+
+		}
+		std::cout << " ,\n";
+	}
+	std::cout << "\n";
+
+
+	LOG_DEBUG("Printing Weights");
+
+	std::vector<int> flatten_weights;
+	for (const auto& row : nodes) {
+		flatten_weights.insert(flatten_weights.end(), row.begin(), row.end());
+	}
+
+	int sum_weights = std::accumulate(flatten_weights.begin(), flatten_weights.end(), 0);
+
+	if (sum_weights <= 0) {
+		LOG_ERROR("Error The sum of weights is zero or negative: {}", sum_weights);
+		return;
+	}
+	else {
+		LOG_DEBUG("Weights should work: {}", sum_weights);
+	}
+
+
+};
+
+
+// Just printing the head
+void networkImmigration::printImmigrationMap() {
+	
+	// First 20 rows 
+	for (int i = 0; i < 20; i++) {
+
+		for (int j = 0; j < temporalImmigrationMap.size(); j++) {
+
+			std::cout << " ," << temporalImmigrationMap[j][i];
+
+		}
+		std::cout << "\n";
+	}
+
+
+
 };

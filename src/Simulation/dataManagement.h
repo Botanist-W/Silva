@@ -3,6 +3,7 @@
 #include "settings.h"
 #include "RTREE.h"
 #include "Forest.h"
+#include "csv.h"
 
 
 // Goal of this class
@@ -20,9 +21,9 @@ public:
 
 	void setName(std::string& name);
 
-	void collectCaptureMaps(std::vector<std::shared_ptr<Forest>>& forests); // Reference to a vector of shared pointers... I'm so far down a rabbit hole, I have no idea what's going on but it keeps working
+	//static void saveResults(std::vector<observation>& result); // TODO: Intergrate these two methods so I dont have to waste time creating one massive list with everything before writing...
 
-	void mapToCSV(); // TODO: Intergrate these two methods so I dont have to waste time creating one massive list with everything before writing...
+	static std::vector<value> getSample(int id);
 
 private:
 

@@ -16,6 +16,7 @@ struct params { //
     int timeSteps = 10000;
     int captureRate = 1000;
     int numRep = 10;  //number replicates
+    bool buildFromSample = false;
 
     int numSpecies = 300; // number of species  
     float treeDensity = 0.04; // Number of trees per area or lambda for pois()

@@ -39,18 +39,15 @@ public:
 
 	void buildFromForest(std::vector<value>&);
 
-	void captureForest(int repeat, int timeStep);
+	//void captureForest(int repeat, int timeStep); // TODO: REMOVE
 
-	std::vector<std::tuple<int, int, int, value>>* getCaptureMap(); // using a raw pointer because nobody can stop me!
+	std::vector<observation> getCapture(int repeat, int timeStep); // using a raw pointer because nobody can stop me!
 
 private:
 
 	void setMethods(); // Gets the correct dispersal and competition based on settings
 
 	void setParams();
-
-	// Repeat, Forest, Time step, Value
-	std::vector<std::tuple<int, int, int, value>> forestCaptureMap; // Should I move to the heap ... wait if this class is already on the heap what happens to stack allocated stuff?
 
 	std::unique_ptr<dispersal> disp;
 	std::unique_ptr<competition> comp;

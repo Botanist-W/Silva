@@ -89,8 +89,9 @@ private:
     bool drawAForest = false;
 
 	params par;
-	bool run;
-	bool useDefaults;
+	bool run = false;
+    bool updateStuff = false;
+	bool useDefaults =true;
     bool saveSettings = false;
     bool loadSettings = false;
     bool openNewNodeMap = false;

@@ -37,8 +37,6 @@ void Simulation::buildSpLib() {
 
 		sp.dispersal = Crand::rand_double(5, 10); // TODO: move to settings 
 
-		sp.survivalProb = Crand::rand_double(0.2, 1);
-
 		sp.CNDD = 0;
 
 		sp.HNDD = 0; // TODO :: IMPLEMENT 
@@ -51,13 +49,16 @@ void Simulation::buildSpLib() {
 
 void Simulation::whichImmigration() {
 	
+	if (forests.size() < 2) // dont know why I am doing it like this 
+		mParams.metaCommunityImmigration = true;
+
 	if (mParams.metaCommunityImmigration)
 	{
-		immigration = std::make_unique<metaImmigration>(mParams, forests);
+		immigration = std::make_unique<metaImmigration>(mParams);
 		immigration->buildMetaCom(spLibrary);
 	}
 	else 
-		immigration = std::make_unique<networkImmigration>(mParams, forests);
+		immigration = std::make_unique<networkImmigration>(mParams);
 	
 
 };
@@ -76,26 +77,27 @@ void Simulation::basicRun() {
 
 		for (size_t capture = 0; capture < captures; capture++) {
 
-			LOG_INFO("Capture: {}", capture);
+			LOG_TRACE("Capture: {}", capture);
 
 			// TODO: set up a loop in which a capture occurs 
 			auto start = std::chrono::high_resolution_clock::now();
 
 			for (int step = 0; step < mParams.captureRate; step++) { // using int becuase I aint changing things
 
-				LOG_INFO("time step: {}", timeStep);
+				LOG_TRACE("time step: {}", timeStep);
 
-				immigration->handleImmigration(step);
+				immigration->handleImmigration(step, forests);
 
 				for (int forest = 0; forest < forests.size(); forest++) { // using int for the ID in m Occurence 
 
-					LOG_INFO("Forest: {}", forest);
+					LOG_TRACE("Forest: {}", forest);
 
 					if (immigration->mOccurence(forest, step) == false) {
 
 						forests[forest]->localStep(); // TODO: pass in timestep here << SHOULD BE USING A MAP OMG
-
+					
 					}
+					
 
 				}
 				timeStep++;
@@ -109,12 +111,12 @@ void Simulation::basicRun() {
 
 			LOG_INFO("Elapsed time between captures: {} seconds", duration.count());
 
-			for (auto& forest : forests)
-				forest->captureForest(rep, timeStep); // Beautiful ...... I hope
+			//for (auto& forest : forests)
+				//forest->captureForest(rep, timeStep); // Beautiful ...... I hope
 
 		} // Capture 
 
-		// Big desitions here
+		// Big desitions here << For multithreading but for now I will just do this ... 
 		// Add the captures to the data class
 
 	} // Repeat

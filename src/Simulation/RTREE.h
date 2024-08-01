@@ -17,10 +17,17 @@ typedef std::pair<point, indiv> value;
 typedef bgi::rtree<value, bgi::quadratic<16>> RTREE; // TODO: Find the optimal sorting method 
 //typedef boost::geometry::index::rtree<value, boost::geometry::index::quadratic<16>> RTREE; // TODO: Try makie this work!!! Tends to be more efficient
 
-// Remember to leave this OUT of the #ifndef!!!
+// Remember to leave this OUT of the #ifndef!!! for Some reason unknown to me 
+
+
+
+
 
 #ifndef RTREECLASS
 #define RTREECLASS
+
+
+
 
 
 class Build; // Foward dec

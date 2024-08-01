@@ -18,19 +18,18 @@ class Immigration
 {
 public:
 
-	Immigration(params& _params, std::vector<std::shared_ptr<Forest>> _forests) : mParams(_params) , mForests(_forests){
+	Immigration(params& _params): mParams(_params){
 
 	};
 
-	virtual void handleImmigration(int& step) = 0;
+	virtual void handleImmigration(int timeStep, std::vector<std::shared_ptr<Forest>> forests) = 0;
 
 	virtual bool mOccurence(int& ID, int&step) = 0;
 
 	virtual void buildMetaCom(std::vector<indiv> spLib) =0;
 
 	params& mParams;
-	std::vector<std::shared_ptr<Forest>> mForests;
-
+	
 	std::bernoulli_distribution mDist{ mParams.m }; // True or false for a chance of immigration << thanks standard lib
 
 };
@@ -39,9 +38,9 @@ public:
 class metaImmigration : public Immigration {
 public:
 	
-	metaImmigration(params& _params, std::vector<std::shared_ptr<Forest>> _forests);
+	metaImmigration(params& _params);
 
-	void handleImmigration(int& step) override;
+	void handleImmigration(int timeStep, std::vector<std::shared_ptr<Forest>> forests) override;
 
 	bool mOccurence(int& ID, int& step) override;
 
@@ -60,9 +59,9 @@ private:
 class networkImmigration : public Immigration { // Passer class --> just preverves some code that is used in both network immigration senaios but not the metaCommunity immigatration 
 public: 
 	
-	networkImmigration(params& _params, std::vector<std::shared_ptr<Forest>> _forests);
+	networkImmigration(params& _params);
 
-	void handleImmigration(int& step) override;
+	void handleImmigration(int timeStep, std::vector<std::shared_ptr<Forest>> forests) override;
 
 	bool mOccurence(int& ID, int& step) override;
 
@@ -75,8 +74,8 @@ private:
 	std::vector<std::vector<int>> temporalImmigrationMap;// { mSetting.numFragments, std::vector<int>(mSetting.timeSteps, 0) }; // To check where the immigration comes from // Reserving space and Set the whole lot to 0 cus most of them will be 
 	// U might be wondering why I did this statically and the answer is I have no idea :( but it works so ...
 
-	template<typename T>
-	void logger(std::vector<std::vector<T>>& nodes);
+	void printNodes(std::vector<std::vector<float>>& nodes);
+	void printImmigrationMap();
 
 	//template<typename T> // Take int or float
 	void createTemporaMap(std::vector<std::vector<float>>&);
@@ -87,25 +86,6 @@ private:
 
 
 
-
-template<typename T>
-void networkImmigration::logger(std::vector<std::vector<T>>& nodes) {
-	std::cout << "\nCreating temp map: \n";
-	std::cout << "node size: " << nodes[0].size() << " should be the same as: " << nodes[1].size() << "  check with nFragments:  " << mParams.numFragments << "\n\n";
-	std::cout << "Check dimentions of immigration time map: \n numFragments: " << temporalImmigrationMap.size() << "\n";// << "\nTimeSteps: " << temporalImmigrationMap[1].size(); << "\n\n";
-
-	std::cout << "Printing Node Map:  \n";
-	for (int i = 0; i < nodes.size(); i++) {
-		for (int j = 0; j < nodes[i].size(); j++) {
-
-			std::cout << nodes[i][j] << " ";
-
-		}
-		std::cout << "\n";
-	}
-	std::cout << "\n\n\n\n";
-
-};
 
 
 

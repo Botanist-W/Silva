@@ -128,18 +128,29 @@ void Forest::localExtinction(int& extSp, std::vector<indiv>& spLib) {
 	
 };
 
-
+/*
 void Forest::captureForest(int repeat,int timeStep) {
 
-	for (const auto& element : tree)
+	for (auto& element : tree)
 		// Repeat, Forest, timestep, value
-		forestCaptureMap.emplace_back(std::tuple<int, int ,int ,value> (repeat, forestID, timeStep, element));
+		forestCaptureList.emplace_back((repeat, forestID, timeStep, element.second.uniqueID, element.second.species, element.first.get<0>(), element.first.get<1>()));
+
+	LOG_DEBUG("Size of forest {} captures: {}", forestID, forestCaptureList.size());
 
 };
 
-std::vector<std::tuple<int, int, int, value>>* Forest::getCaptureMap() {
+std::vector<observation> Forest::getCapture(int repeat, int timeStep) {
 	
-	return &forestCaptureMap;
+	std::vector<observation> capture;
+	capture.reserve(tree.size());
+
+	for (const auto& element : tree)
+		// Repeat, Forest, timestep, ID, Sp, x, y
+		capture.emplace_back((repeat, forestID, timeStep, element.second.uniqueID, element.second.species, element.first.get<0>(), element.first.get<1>())); // I hope this ends up emplacing in the right place
+
+	LOG_DEBUG("Size of forest {} captures: {}", forestID, capture.size());
+
+	return capture;
 
 };
 

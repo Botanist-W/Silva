@@ -5,12 +5,13 @@
 #include "ImGui/App.h"
 #include "Simulation/randFuncs.h"
 #include "Log.h"
+#include "Simulation/dataManagement.h"
 
 boost::random::mt19937 rng;
 
 
 /* TODOS:
-	Intergrate UI and the simulation
+	Intergrate UI and the simulation << NOW DO IT BETTER
 	Sort out the directories bit, so I can more easily iterate through settings
 	Get the data output sorted
 		Alter simulation class to have a capture rate
@@ -25,13 +26,17 @@ boost::random::mt19937 rng;
 
 */
 
+
+
 int main()
 {
 	Log::Init(); // Being lazy here 
 
-	App app;
+	//App app;
 
-	app.Run();
+	//app.Run();
+
+
 
 	return 0;
 }

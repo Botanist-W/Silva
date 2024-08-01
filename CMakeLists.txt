@@ -38,6 +38,7 @@ add_subdirectory(vendor/GLFW)
 add_subdirectory(vendor/imgui)
 add_subdirectory(vendor/spdlog)
 
+
 file(GLOB_RECURSE MY_SOURCES 
     "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/*.h"
