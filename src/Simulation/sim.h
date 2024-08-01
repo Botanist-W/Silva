@@ -17,19 +17,18 @@ class Sim
 {
 public:
 
-	Sim(const params& _params, int _repeat);
+	Sim(const params& _params, const int& _repeat);
 
 	~Sim() = default;
+
+	void test();
 
 	void runModel(); 
 
 	std::vector<observation> getResults();
 
-    std::shared_ptr<Forest> getForest(int id); // could try weak pointer 
+    std::shared_ptr<Forest> getForest(int id); // Just for drawing >> probs remove tho
 
-	// vectors for output << a sum of all individual forest counts >> R friendly data 
-	// These are all just terrible -- > Be better
-	
 
 private:
 	// Constructor stuff
@@ -39,16 +38,16 @@ private:
 	void setImmigration(); // Terrible naming as ususal
 	// ~ Constructor stuff
 
-	params mParams; // Do I need const & for thread access??  << Does this mean I need to give everthing a const reference? 
+	params mParams; // Do I need const & for thread access??  << Does this mean I need to give everthing a const reference? << SHOULDT BE BLANK
 	// Just copy it, then ur good!
-	std::vector<std::shared_ptr<Forest>> forests;
+	std::vector<std::shared_ptr<Forest>> mForests;
 
 	std::unique_ptr<Immigration> immigration; // Immigration type
 
 	std::vector<indiv> spLibrary;
 
 
-	int& repeat;
+	const int repeat;
 
 	// The important bit
 	std::vector<observation> results;

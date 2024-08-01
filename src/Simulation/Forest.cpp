@@ -23,7 +23,7 @@ void Forest::setMethods() {
 void Forest::setParams() {
 
 	searchArea = mParams.searchArea;
-	bounds = mParams.fragmentSizeList[forestID]; // TODO BE USEFUL
+	bounds = mParams.fragmentSizeList[forestID]; 
 	treeDensity = mParams.treeDensity;
 	numIndiv = (bounds * bounds) * treeDensity;
 	numSpecies = mParams.numSpecies;
@@ -128,16 +128,7 @@ void Forest::localExtinction(int& extSp, std::vector<indiv>& spLib) {
 	
 };
 
-/*
-void Forest::captureForest(int repeat,int timeStep) {
 
-	for (auto& element : tree)
-		// Repeat, Forest, timestep, value
-		forestCaptureList.emplace_back((repeat, forestID, timeStep, element.second.uniqueID, element.second.species, element.first.get<0>(), element.first.get<1>()));
-
-	LOG_DEBUG("Size of forest {} captures: {}", forestID, forestCaptureList.size());
-
-};
 
 std::vector<observation> Forest::getCapture(int repeat, int timeStep) {
 	
@@ -146,7 +137,7 @@ std::vector<observation> Forest::getCapture(int repeat, int timeStep) {
 
 	for (const auto& element : tree)
 		// Repeat, Forest, timestep, ID, Sp, x, y
-		capture.emplace_back((repeat, forestID, timeStep, element.second.uniqueID, element.second.species, element.first.get<0>(), element.first.get<1>())); // I hope this ends up emplacing in the right place
+		capture.emplace_back(repeat, forestID, timeStep, element.second.uniqueID, element.second.species, float(element.first.get<0>()), float(element.first.get<1>())); // I hope this ends up emplacing in the right place
 
 	LOG_DEBUG("Size of forest {} captures: {}", forestID, capture.size());
 
@@ -161,7 +152,7 @@ std::vector<observation> Forest::getCapture(int repeat, int timeStep) {
 void Forest::buildFromForest(std::vector<value>& input) {
 
 	// If the input is larger than this forest instance then it can use a random sample from the input 
-	int setSize = Crand::rand_int(0, (input.size() - bounds));
+	int setSize = Crand::rand_int(0, int(input.size() - bounds));
 
 	for (int i = setSize; i < numIndiv + setSize; i++)
 		tree.insert(input[i]); // This would be interesting to see how this works :/ because of the R tree not being linear

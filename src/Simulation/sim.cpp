@@ -1,9 +1,17 @@
 #include "sim.h"
 #include "pch.h"
 
+void Sim::test() {
 
 
-Sim::Sim(const params& _params, int _repeat) :
+	for (int i = 0; i < 10000000; i++) {
+		double h = sqrt(i * i) * pow(2, i);
+		LOG_DEBUG("val {} thread {} ", h, repeat);
+	}
+
+};
+
+Sim::Sim(const params& _params, const int& _repeat) :
 	mParams(_params), repeat(_repeat) {
 	setup();
 }
@@ -11,9 +19,11 @@ Sim::Sim(const params& _params, int _repeat) :
 
 void Sim::setup() {
 	
+	//test();
+	build();
 	setImmigration();
 
-	build();
+	
 
 };
 
@@ -23,13 +33,13 @@ void Sim::build() {
 	if (mParams.buildFromSample) {
 		for (int i = 0; i < mParams.numFragments; i++) {
 			// Creating instances of Forest class and assigning them an ID just as a guard against stuff
-			forests.emplace_back(std::make_shared<Forest>(mParams, i));
+			mForests.emplace_back(std::make_shared<Forest>(mParams, i));
 			
 			int sample = Crand::rand_int(0, 10); // Planning of having 10 samples
 
 			//forests[i]->buildFromForest(data::getSample(0));
 
-			LOG_DEBUG("Rtree size (N): {}", forests[i]->tree.size());
+			LOG_DEBUG("Rtree size (N): {}", mForests[i]->tree.size());
 			LOG_DEBUG("Built from sample");
 		}
 	}
@@ -40,11 +50,11 @@ void Sim::build() {
 
 		for (int i = 0; i < mParams.numFragments; i++) {
 			// Creating instances of Forest class and assigning them an ID just as a guard against stuff
-			forests.emplace_back(std::make_shared<Forest>(mParams, i));
+			mForests.emplace_back(std::make_shared<Forest>(mParams, i));
 
-			forests[i]->buildFromLib(spLibrary);
+			mForests[i]->buildFromLib(spLibrary);
 
-			LOG_DEBUG("Rtree size (N): {}", forests[i]->tree.size());
+			LOG_DEBUG("Rtree size (N): {}", mForests[i]->tree.size());
 			LOG_DEBUG("Built from Library");
 		}
 	}
@@ -75,10 +85,8 @@ void Sim::buildSpLib() {
 
 void Sim::setImmigration() {
 
-	if (forests.size() < 2) // dont know why I am doing it like this 
-		mParams.metaCommunityImmigration = true;
 
-	if (mParams.metaCommunityImmigration)
+	if (mForests.size() < 2)
 	{
 		immigration = std::make_unique<metaImmigration>(mParams);
 		immigration->buildMetaCom(spLibrary);
@@ -95,7 +103,7 @@ void Sim::runModel() {
 
 	int timeStep = 0;
 
-	for (size_t capture = 0; capture < captures; capture++) {
+	for (int capture = 0; capture < captures; capture++) {
 
 		LOG_TRACE("Capture: {}", capture);
 
@@ -106,15 +114,15 @@ void Sim::runModel() {
 
 			LOG_TRACE("time step: {}", timeStep);
 
-			immigration->handleImmigration(step, forests);
+			immigration->handleImmigration(step, mForests);
 
-			for (int forest = 0; forest < forests.size(); forest++) { // using int for the ID in m Occurence 
+			for (int forest = 0; forest < mForests.size(); forest++) { // using int for the ID in m Occurence 
 
 				LOG_TRACE("Forest: {}", forest);
 
 				if (immigration->mOccurence(forest, step) == false) {
 
-					forests[forest]->localStep(); // TODO: pass in timestep here << SHOULD BE USING A MAP OMG
+					mForests[forest]->localStep(); // TODO: pass in timestep here << SHOULD BE USING A MAP OMG
 
 				}
 
@@ -129,7 +137,7 @@ void Sim::runModel() {
 		std::chrono::duration<double> duration = end - start;
 		LOG_INFO("Elapsed time between captures: {} seconds", duration.count());
 
-		//for (auto& forest : forests)
+		//for (auto& forest : mForests)
 			//results.emplace_back(forest->getCapture(repeat, timeStep)); // Beautiful ...... I hope
 
 	} // Capture 
@@ -139,7 +147,7 @@ void Sim::runModel() {
 
 std::shared_ptr<Forest> Sim::getForest(int id) {
 
-	return forests[id];
+	return mForests[id];
 
 }
 

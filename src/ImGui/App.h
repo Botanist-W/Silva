@@ -53,22 +53,24 @@ public:
 
 	void Run();
 
+    params getParams();
+
 private:
 
 	int setup();
 
-	void Menu();
-
-
+    void Menu();
     void ResizeMatrix(int newSize);
 
+
+    // Drawing 
     void DrawFragments();
     void newFragmentDraw();
-
-
     std::vector<ImVec2> fragmentPositions = {};
     std::vector<bool> fragmentPosCache;
+    // ~ Drawing 
 
+    // Main window & sizes
 	GLFWwindow* mWindow;
     int windowWidth, windowHeight;
     float menuWidth, menuHeight, menuPos;
@@ -76,6 +78,8 @@ private:
     float relFragmentScale;
     float fragmentBufferX = 0;
     float fragmentBufferY = 50;
+    // ~
+
     int row = 0;
     int nextRow = 0;
 
@@ -84,13 +88,11 @@ private:
     
     void updateSim();
     Simulation* mSim;
-    //std::unique_ptr<Simulation> mSim;
     std::unique_ptr<drawForest> mDrawForest;// { mSim.getForest(0) };
     bool drawAForest = false;
 
 	params par;
 	bool run = false;
-    bool updateStuff = false;
 	bool useDefaults =true;
     bool saveSettings = false;
     bool loadSettings = false;

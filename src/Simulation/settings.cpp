@@ -1,5 +1,22 @@
 #include "settings.h"
 #include "pch.h"
+
+void settings::save(std::string& directory, const params& par) {
+    settingsDirectory = directory;
+    mParams = par;
+    saveParams();
+    saveNodeMap();
+    saveSizeList();
+}
+
+params settings::load(std::string& directory) {
+    settingsDirectory = directory;
+    loadParams();
+    loadNodeMap();
+    loadSizeList();
+    return mParams;
+}
+
 void settings::generateDirectory() {
 
     std::ostringstream oss;
@@ -60,7 +77,7 @@ void settings::saveParams() {
     file << "extinctionRate," << mParams.extinctionRate << "\n";
 
     file.close();
-    LOG_INFO("Settings saved to: {}", dataOutputPath);
+    LOG_INFO("Settings saved to: {}", settingsDirectory);
 }
 
 void settings::loadParams() { // Super inefficient but just being safe I guess
@@ -255,15 +272,19 @@ void settings::loadSizeList() {
 
 }
 
-
-
-
 // Helper functions 
-
-
 void settings::ResizeMatrix(int newSize) {
     mParams.nodeMap.resize(newSize);
     for (auto& row : mParams.nodeMap) {
         row.resize(newSize, 0.0f);
     }
 }
+
+
+
+void settings::setPaths(std::string& path, const char type) {
+    if (type == 's')
+        settingsPath = path;
+    else
+        dataOutputPath = path;
+};

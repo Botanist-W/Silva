@@ -54,28 +54,31 @@ struct params { //
 class settings {
 public:
 
-    settings(params& _params) : mParams(_params) {};
+    settings() {};
 
-    // TODO: Offload to the settings class
-    std::string dataOutputPath = "";
-    std::string settingsPath = "";
-    std::string settingsDirectory = "";
+    std::string settingsPath = "data/defaults";
+    std::string settingsDirectory = "data/defaults"; // TODO: be able to iterate settings
 
+    void setPaths(std::string&, const char);
 
     void generateDirectory();
+
+    void save(std::string&, const params&);
+    params load(std::string&);
 
     void saveParams();
     void loadParams();
 
-    void loadNodeMap();
     void saveNodeMap();
-
-    void loadSizeList();
+    void loadNodeMap();
+    
     void saveSizeList();
+    void loadSizeList();
+    
 
 private: 
 
-    params& mParams;
+    params mParams;
 
     void ResizeMatrix(int newSize);
 };

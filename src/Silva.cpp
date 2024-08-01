@@ -6,6 +6,7 @@
 #include "Simulation/randFuncs.h"
 #include "Log.h"
 #include "Simulation/dataManagement.h"
+#include "Simulation/Run.h"
 
 boost::random::mt19937 rng;
 
@@ -35,8 +36,9 @@ int main()
 	//App app;
 
 	//app.Run();
+	Run running;
 
-
+	running.runRepeats();
 
 	return 0;
 }

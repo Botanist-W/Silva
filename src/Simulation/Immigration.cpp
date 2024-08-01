@@ -24,8 +24,8 @@ void metaImmigration::buildMetaCom(std::vector<indiv> spLib) {
 	metaCom.reserve(mParams.metaComSize);
 
 	for (size_t i = 0; i < mParams.metaComSize; i++) {
-	
-		metaCom.emplace_back(spLib[Crand::rand_int(0, spLib.size() - 1)]);
+		
+		metaCom.emplace_back(spLib[Crand::rand_int(0, int(spLib.size() - 1))]);
 		
 	}
 	LOG_TRACE("Built meta-community {}", metaCom.size());
@@ -39,7 +39,7 @@ void metaImmigration::handleImmigration(int timeStep, std::vector<std::shared_pt
 	for (size_t i = 0; i < forests.size(); i++) {
 		if (mDist(gen)) {
 			forests[i]->removeTree(forests[i]->randomTree());
-			forests[i]->addTree(value(point(Crand::randFloat(0, forests[i]->bounds), Crand::randFloat(0, forests[i]->bounds)), metaCom[Crand::rand_int(0, metaCom.size() - 1)]));
+			forests[i]->addTree(value(point(Crand::randFloat(0, forests[i]->bounds), Crand::randFloat(0, forests[i]->bounds)), metaCom[Crand::rand_int(0, int(metaCom.size() - 1))]));
 			doesImmigrationOccur = true;
 			LOG_TRACE("Immigration has Occured");
 		}
