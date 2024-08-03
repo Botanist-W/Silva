@@ -2,7 +2,9 @@
 ImGui won't add for some reason
 but otherwise, should build
 
-Also the UI and simulation arent put together yet so That won't run, just getting it out there
+Only works for windows currently i think but plans to make it work with linux
+
+It's now in a good enough state. Still many things that aren't finished and it struggles with very large data sets. But otherwise it is fast enough  and can output data
 
 # Silva
 
