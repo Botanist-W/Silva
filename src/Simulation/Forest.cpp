@@ -30,6 +30,10 @@ void Forest::setParams() {
 	b1 = mParams.b1;
 	b2 = mParams.b2;
 
+	LOG_TRACE("search area {}", searchArea);
+	LOG_TRACE("bounds {}", bounds);
+	LOG_TRACE("number of indiv {}", numIndiv);
+
 }
 
 
@@ -78,7 +82,7 @@ void Forest::localStep() {
 		float compare = Crand::randFloat(0, 1);
 
 		// Main check for whether recruitment was successfull 
-		if (pNCI < Crand::randFloat(0,1)) { // Can alter this later ://
+		if (pNCI > Crand::randFloat(0,1)) { // Can alter this later ://
 			LOG_TRACE("Recruitment SUCCESS");
 			tree.insert(value(recPos, parent.second));
 			break;
@@ -137,7 +141,7 @@ std::vector<observation> Forest::getCapture(int repeat, int timeStep) {
 
 	for (const auto& element : tree)
 		// Repeat, Forest, timestep, ID, Sp, x, y
-		capture.emplace_back(repeat, forestID, timeStep, element.second.uniqueID, element.second.species, float(element.first.get<0>()), float(element.first.get<1>())); // I hope this ends up emplacing in the right place
+		capture.emplace_back(repeat, forestID, timeStep, int(element.second.uniqueID), int(element.second.species), float(element.first.get<0>()), float(element.first.get<1>())); // I hope this ends up emplacing in the right place
 
 	LOG_DEBUG("Size of forest {} captures: {}", forestID, capture.size());
 

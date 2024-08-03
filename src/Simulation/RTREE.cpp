@@ -44,16 +44,24 @@ void rTree::removeTree(value remove) {
     tree.remove(remove);
 };
 
+
+// OOPS! I'll let you figue out what's wrong with this 
+/*
 value rTree::randomTree() {
 
     point point_rng = point(Crand::randFloat(0, bounds), Crand::randFloat(0, bounds));
 
     value result;
-    tree.query(bgi::nearest(point_rng, 1), &result);
+    tree.query(bgi::nearest(point_rng, 1), &result); ////// HERE@S THE PROBLEM!!!!!!!
     return result;
 
 };
+*/
 
+
+value rTree::randomTree() {
+    return *std::next(tree.begin(), Crand::rand_int(0, tree.size() - 1));
+};
 
 std::vector<value> rTree::getValues() { // I know this is slow but I forgot how to do it propely 
 

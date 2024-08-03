@@ -6,10 +6,10 @@
 #include <tuple>
 #include <thread>
 #include <chrono>
+#include "dataManagement.h"
 
-#ifndef SIM
-#define SIM
-
+#ifndef SIMULATION
+#define SIMULATION
 
 
 
@@ -17,40 +17,40 @@ class Simulation
 {
 public:
 
-	Simulation(params& _params);
+	Simulation(const params& _params, const int& _repeat);
 
 	~Simulation() = default;
 
-	void run(); // Main function with threads hopefully
+	void runModel(); 
 
-	void basicRun(); // Test without threads
+	std::vector<observation>& getResults();
 
-	std::shared_ptr<Forest> getForest(int id); // could try weak pointer 
+    std::shared_ptr<Forest> getForest(int id); // Just for drawing >> probs remove tho
 
-	// vectors for output << a sum of all individual forest counts >> R friendly data 
-	// These are all just terrible -- > Be better
-	std::vector<std::vector<std::pair<int, value>>> outputCapture; 
-	std::vector<std::tuple<int, int, int>>  outputSpCount;
 
 private:
 	// Constructor stuff
 	void setup();
 	void buildSpLib();
-	void whichImmigration(); // Terrible naming as ususal
+	void build(); // Build from the samples  
+	void setImmigration(); // Terrible naming as ususal
 	// ~ Constructor stuff
 
-	params& mParams; // Do I need const & for thread access??  << Does this mean I need to give everthing a const reference? 
-
-	std::vector<std::shared_ptr<Forest>> forests; 
+	params mParams; // Do I need const & for thread access??  << Does this mean I need to give everthing a const reference? << SHOULDT BE BLANK
+	// Just copy it, then ur good!
+	std::vector<std::shared_ptr<Forest>> mForests;
 
 	std::unique_ptr<Immigration> immigration; // Immigration type
-	
+
 	std::vector<indiv> spLibrary;
+
+
+	const int repeat;
+
+	// The important bit
+	std::vector<observation> results;
 
 };
 
 
 #endif // !SIM
-
-
-

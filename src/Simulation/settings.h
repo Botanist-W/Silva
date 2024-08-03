@@ -9,6 +9,7 @@
 #include <iomanip>
 #include <fstream>
 #include <filesystem>
+#include <csv.h>
 
 struct params { // 
 
@@ -30,7 +31,7 @@ struct params { //
     bool equalFragmentSize = true;
     float size = 100; // L ... Size of simulation Usefull for continuous 
     std::vector<float> fragmentSizeList; // Is the equal Fragment size == false --> this this is used 
-    std::vector<std::vector<float>> nodeMap;
+    std::vector<std::vector<float>> nodeMap; // TODO: improve memeory useage << or decide if I need to because it's not used too much
 
     // Ecological settings
     bool fragmented = false; // Run with or without fragmentation
@@ -56,14 +57,15 @@ public:
 
     settings() {};
 
-    std::string settingsPath = "data/defaults";
+    std::string settingsPath = "data/defaults"; // Only used by the generate directory method
     std::string settingsDirectory = "data/defaults"; // TODO: be able to iterate settings
 
-    void setPaths(std::string&, const char);
+    void generateDirectory(); // Generates the folder name where the files will hopefully be 
 
-    void generateDirectory();
+    void set(const params&); // When in code 
+    params get();
 
-    void save(std::string&, const params&);
+    void save(std::string&, const params&); // When files r invlolved 
     params load(std::string&);
 
     void saveParams();

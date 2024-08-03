@@ -1,11 +1,9 @@
 #include "App.h"
 #include "pch.h"
 
-App::App() {
+App::App(settings& _settings, data& _data) : mSettings(_settings), mData(_data){
     
 	setup();
-
-    mSim = new Simulation(par);
 
 };
 
@@ -318,17 +316,12 @@ void App::Menu() {
 
         drawAForest = false;
 
-        updateSim();
-        
-        mSim->basicRun();
     }
 
-    if (im::Button("Update sim"))
-        updateSim();
-
-    if (im::Checkbox("Show first fragment: ", &drawAForest)) {
-
-        mDrawForest = std::make_unique<drawForest>(mSim->getForest(0));
+    if (im::Button("Debug? ")) {
+        drawAForest = true;
+        mForest = std::make_shared<Forest>(par, 10);
+        mDrawForest = std::make_unique<drawForest>(mForest);
 
     }
 
@@ -345,42 +338,43 @@ void App::ResizeMatrix(int newSize) {
     }
 }
 
-void App::Run() {
+bool App::Run() {
    
-    
-    while (!glfwWindowShouldClose(mWindow))
+   if(!glfwWindowShouldClose(mWindow))
     {
         glfwPollEvents();
-
-        // Start the Dear ImGui frame
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
         
         glfwGetWindowSize(mWindow, &windowWidth, &windowHeight);
 
-        Menu();
-        DrawFragments();
-
-        if (drawAForest && par.fragmentSizeList[0] < 250)
+        if (drawAForest) {
             mDrawForest->visualizeForest();
-        else if(par.fragmentSizeList[0] > 250)
-            LOG_WARN("Hey bucko, calm down, I'm not implementing some fancy redering for this");
-
+        }
+      
         if (saveSettings) {
-            generateDirectory();
-            saveParams(); 
-            saveNodeMap();
-            saveSizeList();
+            mSettings.save(settingsPath, par);
             saveSettings = false; 
         }
 
         if (loadSettings) {
-            loadParams(); 
-            loadNodeMap();
-            loadSizeList();
+            mSettings.load(settingsPath);
+            par = mSettings.get();
             loadSettings = false;
         }
+
+        if (run) {
+            cleanup();
+            mData.setPath(dataOutputPath);
+            mData.setName(par);
+            mSettings.set(par);
+            return false;
+        }
+        // My stuff
+        Menu();
+        DrawFragments();
+
 
         // Rendering
         ImGui::Render();
@@ -390,12 +384,23 @@ void App::Run() {
         glClearColor(clear_color.x * clear_color.w, clear_color.y * clear_color.w, clear_color.z * clear_color.w, clear_color.w);
         glClear(GL_COLOR_BUFFER_BIT);
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-
         glfwSwapBuffers(mWindow);
+
+        return true;
     }
-#ifdef __EMSCRIPTEN__
-    EMSCRIPTEN_MAINLOOP_END;
-#endif
+   else {
+       cleanup();
+       return false;
+    }
+  
+};
+
+
+void App::cleanup() {
+    
+    #ifdef __EMSCRIPTEN__
+        EMSCRIPTEN_MAINLOOP_END;
+    #endif
 
     // Cleanup
     ImGui_ImplOpenGL3_Shutdown();
@@ -404,8 +409,8 @@ void App::Run() {
 
     glfwDestroyWindow(mWindow);
     glfwTerminate();
-};
 
+};
 
 // SETUP
 int App::setup() {
@@ -462,269 +467,3 @@ int App::setup() {
 
 };
 
-
-void App::generateDirectory() {
-
-    std::ostringstream oss;
-    oss << settingsPath
-        << "Settings_"
-        << "nf" << par.numFragments << "_"
-        << "m" << par.m << "_"
-        << "sp" << par.numSpecies << "_"
-        << "td" << par.treeDensity << "_"
-        << "t" << par.timeSteps;
-
-    std::filesystem::create_directories(oss.str());
-
-    settingsDirectory =  oss.str();
-
-}
-
-
-// Parameters
-void App::saveParams() {
-
-    std::ofstream file(settingsDirectory + "/params.csv");
-
-
-    if (!file.is_open()) {
-        std::cerr << "Failed to open file for writing: " << std::endl;
-        return;
-    }
-
-    // Write headers
-    file << "Parameter,Value\n";
-
-    // Write simulation settings
-    file << "timeSteps," << par.timeSteps << "\n";
-    file << "numRep," << par.numRep << "\n";
-    file << "numSpecies," << par.numSpecies << "\n";
-    file << "treeDensity," << par.treeDensity << "\n";
-
-    // Write immigration settings
-    file << "metaCommunityImmigration," << par.metaCommunityImmigration << "\n";
-    file << "metaComSize," << par.metaComSize << "\n";
-
-    // Write fragment interactions
-    file << "numFragments," << par.numFragments << "\n";
-    file << "equalFragmentSize," << par.equalFragmentSize << "\n";
-    file << "size," << par.size << "\n";
-
-    // Write ecological settings
-    file << "fragmented," << par.fragmented << "\n";
-    file << "neutralComp," << par.neutralComp << "\n";
-    file << "searchArea," << par.searchArea << "\n";
-    file << "b1," << par.b1 << "\n";
-    file << "b2," << par.b2 << "\n";
-    file << "m," << par.m << "\n";
-    file << "dispersalDis," << par.dispersalDis << "\n";
-    file << "mort," << par.mort << "\n";
-    file << "HNDD," << par.HNDD << "\n";
-    file << "CNDD," << par.CNDD << "\n";
-    file << "extinctionRate," << par.extinctionRate << "\n";
-
-    file.close();
-
-}
-
-void App::loadParams() { // Super inefficient but just being safe I guess
-
-    std::ifstream file(
-        settingsDirectory + "/params.csv");
-
-    if (!file.is_open()) {
-        std::cerr << "Failed to open file for reading: " << settingsDirectory << std::endl;
-        return;
-    }
-
-    std::string line;
-    while (std::getline(file, line)) {
-        std::istringstream iss(line);
-        std::string parameter, value;
-        std::getline(iss, parameter, ',');
-        std::getline(iss, value, ',');
-
-        if (parameter == "timeSteps") {
-            par.timeSteps = std::stoi(value);
-        }
-        else if (parameter == "numRep") {
-            par.numRep = std::stoi(value);
-        }
-        else if (parameter == "numSpecies") {
-            par.numSpecies = std::stoi(value);
-        }
-        else if (parameter == "treeDensity") {
-            par.treeDensity = std::stof(value);
-        }
-        else if (parameter == "metaCommunityImmigration") {
-            par.metaCommunityImmigration = (value == "1");
-        }
-        else if (parameter == "metaComSize") {
-            par.metaComSize = std::stoi(value);
-        }
-        else if (parameter == "numFragments") {
-            par.numFragments = std::stoi(value);
-        }
-        else if (parameter == "equalFragmentSize") {
-            par.equalFragmentSize = (value == "1");
-        }
-        else if (parameter == "size") {
-            par.size = std::stof(value);
-        }
-        else if (parameter == "fragmented") {
-            par.fragmented = (value == "1");
-        }
-        else if (parameter == "neutralComp") {
-            par.neutralComp = (value == "1");
-        }
-        else if (parameter == "searchArea") {
-            par.searchArea = std::stof(value);
-        }
-        else if (parameter == "b1") {
-            par.b1 = std::stof(value);
-        }
-        else if (parameter == "b2") {
-            par.b2 = std::stof(value);
-        }
-        else if (parameter == "m") {
-            par.m = std::stof(value);
-        }
-        else if (parameter == "dispersalDis") {
-            par.dispersalDis = std::stof(value);
-        }
-        else if (parameter == "mort") {
-            par.mort = std::stof(value);
-        }
-        else if (parameter == "HNDD") {
-            par.HNDD = std::stof(value);
-        }
-        else if (parameter == "CNDD") {
-            par.CNDD = std::stof(value);
-        }
-        else if (parameter == "extinctionRate") {
-            par.extinctionRate = std::stof(value);
-        }
-        else {
-            std::cerr << "Unknown parameter: " << parameter << std::endl;
-        }
-    }
-
-    file.close();
-    
-}
-// ~ Parameters
-
-// Node Map 
-void App::saveNodeMap() {
-
-    std::ofstream file(settingsDirectory + "/nodeMap.csv");
-
-    if (!file.is_open()) {
-        std::cerr << "Failed to open file: " << settingsDirectory << std::endl;
-        return;
-    }
-
-    ResizeMatrix(par.numFragments);
-
-    for (int i = 0; i < par.numFragments; i++) {
-
-        for (int j = 0; j < par.numFragments; j ++ ) {
-
-            file << par.nodeMap[i][j] << ",";
-
-        }
-
-        file << "\n";
-    }
-
-    file.close();
-
-}
-
-void App::loadNodeMap() {
-
-    std::ifstream file(settingsDirectory + "/nodeMap.csv");
-
-    if (!file.is_open()) {
-        std::cerr << "Failed to open file: " << settingsDirectory << std::endl;
-        return;
-    }
-
-    std::string line;
-    
-    while (std::getline(file, line)) {
-        std::stringstream ss(line);
-        std::string value;
-        std::vector<float> row;
-
-        while (std::getline(ss, value, ',')) {
-       
-           row.push_back(std::stof(value)); // FLOAT == unbalanced immigration 
-    
-        }
-            par.nodeMap.push_back(row);
-    }
-
-    // Close the file after reading
-    file.close();
-    
-};
-// ~ Node Map
-
-// Size list
-void App::saveSizeList(){
-    std::ofstream file(settingsDirectory + "/sizeList.csv");
-
-    if (!file.is_open()) {
-        std::cerr << "Failed to open file for writing: " << std::endl;
-        return;
-    }
-
-    for (int i = 0; i < par.numFragments; i++) {
-
-        file << i << "," << par.fragmentSizeList[i] << "\n";
-
-    }
-
-    file.close();
-
-}
-
-void App::loadSizeList() {
-
-    std::ifstream file(settingsDirectory + "/sizeList.csv");
-
-    if (!file.is_open()) {
-        std::cerr << "Failed to open file for writing: " << std::endl;
-        return;
-    }
-
-    par.fragmentSizeList.resize(par.numFragments);
-
-    std::string line;
-    while (std::getline(file, line)) {
-
-        std::stringstream ss(line);
-        std::string value, fragment;
-        std::getline(ss, fragment, ',');
-        std::getline(ss, value, ',');
-
-
-        par.fragmentSizeList.push_back(std::stof(value));
-
-    }
-
-    file.close();
-
-
-}
-
-
-
-void App::updateSim() {
-    // lets try raw pointers
-
-    delete mSim; 
-    mSim = new Simulation(par);
-
-}

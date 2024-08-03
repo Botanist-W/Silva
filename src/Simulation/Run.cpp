@@ -10,12 +10,7 @@ Run::Run() {
 
 	// Reserve space for data
 
-	// Init repeats
-	for (int i = 0; i < mParams.numRep; i++) {
-		mRepeats.emplace_back(std::make_unique<Sim>(mParams, i));
-		LOG_DEBUG("Created forest: {}", i);
-	}
-
+	
 };
 
 
@@ -26,7 +21,7 @@ void Run::init() {
 	std::cin >> gui;
 	if (gui == 'y') {
 		LOG_INFO("Using gui: ");
-		mApplication = std::make_unique<App>();
+		mApplication = std::make_unique<App>(mSettings, mData); // Is this best way to manage the settings/data?????
 	}
 	else {
 		LOG_INFO("No gui: ");
@@ -39,14 +34,33 @@ void Run::runSimulation() {
 
 	// Move the while loop to here
 	while (true) {
-		mApplication->Run();
+		if(!mApplication->Run())
+			break;
 	} 
-	// Close the gui
-	
-	// Run the simulation
-	
+
+	// Get params
+	mParams = mSettings.get();
 
 
+	// Init repeats
+	for (int i = 0; i < mParams.numRep; i++) {
+		mRepeats.emplace_back(std::make_unique<Simulation>(mParams, i));
+		LOG_DEBUG("Created forest: {}", i);
+	}
+
+	// Run 
+	// TODO: set up a loop in which a capture occurs 
+	auto start = std::chrono::high_resolution_clock::now();
+	runRepeats();
+	auto end = std::chrono::high_resolution_clock::now();
+	std::chrono::duration<double> duration = end - start;
+	LOG_INFO("FINSIHED SIMULATION... UPLOADING", duration.count());
+
+
+	for (int i = 0; i < mRepeats.size(); i++) {
+		LOG_DEBUG("Saving result: {}", i); 
+		mData.saveResults(mRepeats[i]->getResults());
+	}
 
 };
 
@@ -57,7 +71,7 @@ void Run::runRepeats() {
 	// Launch the processes in parallel
 	for (auto& sim : mRepeats) {
 		// Launch each `process` method asynchronously
-		futures.push_back(std::async(std::launch::async, &Sim::test, sim.get()));
+		futures.push_back(std::async(std::launch::async, &Simulation::runModel, sim.get()));
 	}
 
 	// Wait for all futures to complete

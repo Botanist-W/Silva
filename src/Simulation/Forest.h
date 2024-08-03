@@ -23,14 +23,18 @@
 class Forest : public rTree {
 public:
 
-	int& forestID; // Just to keep track of the ID of the thing 
+	const int forestID; // Just to keep track of the ID of the thing 
 
-	Forest(params& _params, int& _ID) : rTree(_params), forestID(_ID) { 
+	Forest(const params& _params, const int& _ID) : rTree(_params), forestID(_ID) { 
 		LOG_INFO("Created forest: {}", forestID);
 		//searchResults.reserve(Pi*(searchArea*searchArea)*treeDensity*2); // Reserving twice the average expected number of trees returned in each search to prevent reallocation
 		setParams();
 		setMethods();
 		
+	}
+
+	~Forest() {
+		LOG_DEBUG("Forest {} destroyed", forestID);
 	}
 
 	void localStep(); // Run a step of dispersal and competition, MAKE IT FAST ( Immigration is done first in the simulation class )
@@ -41,7 +45,7 @@ public:
 
 	//void captureForest(int repeat, int timeStep); // TODO: REMOVE
 
-	std::vector<observation> getCapture(int repeat, int timeStep); // using a raw pointer because nobody can stop me!
+	std::vector<observation> getCapture(int repeat, int timeStep); 
 
 private:
 
@@ -52,7 +56,7 @@ private:
 	std::unique_ptr<dispersal> disp;
 	std::unique_ptr<competition> comp;
 
-	// These search results are constantly used so keep on stack
+	// These search results are constantly used so keep on stack or something, idk
 	std::vector<value> searchResults;
 
 };

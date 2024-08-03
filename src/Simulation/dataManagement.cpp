@@ -4,10 +4,57 @@
 
 
 void data::setPath(std::string& path) {
+    outputDirectory = path;
+};
+
+void data::setName(params& par) {
+
+    std::ostringstream oss;
+
+    oss << outputDirectory
+        << "/Result_"
+        << "nf" << par.numFragments << "_"
+        << "m" << par.m << "_"
+        << "sp" << par.numSpecies << "_"
+        << "td" << par.treeDensity << "_"
+        << "t" << par.timeSteps << ".csv";
+
+ 
+
+    outputFile = oss.str();
+
+    // Write the header of the file here?? not much point is making another method for this
+    std::ofstream file(outputFile);
+
+    //  R will thank you 
+    file << "Repeat" << "," << "Forest" << "," << "TimeStep" << "," << "ID" << "," << "Species" << "," << "x" << "," << "y" << "\n";
 
 };
 
-void data::setName(std::string& name) {
+
+void data::saveResults(std::vector<observation>& result) {
+    
+    LOG_DEBUG("size of output result: {}", result.size());
+
+    std::ofstream file;
+
+    file.open(outputFile, std::ios_base::app);
+
+    if (!file.is_open()) {
+        LOG_ERROR("Failed to open OUTPUT file for writing");
+        return;
+    }
+
+    for (const auto& obs : result) {
+        file << obs.repeat << ","
+            << obs.forest << ","
+            << obs.timeStep << ","
+            << obs.uniqueID << ","
+            << obs.species << ","
+            << obs.x << ","
+            << obs.y << "\n";
+    }
+   
 
 };
 

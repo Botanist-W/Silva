@@ -38,7 +38,7 @@ int main()
 	//app.Run();
 	Run running;
 
-	running.runRepeats();
+	running.runSimulation();
 
 	return 0;
 }

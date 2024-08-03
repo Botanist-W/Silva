@@ -27,4 +27,7 @@ private:
 
     // Helper method to get or assign color to a speciesID
     ImVec4 getSpeciesColor(int speciesID);
+
+    void buildSpLib();
+    std::vector<indiv> spLibrary;
 };

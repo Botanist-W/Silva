@@ -7,9 +7,8 @@
 
 
 // Goal of this class
-// Takes in a capture and stores it in a thingy 
-// I dont know 
-// Should it just be part of the forest class <-- probably 
+// Deal with the OUTPUT data and all that 
+// Should it just be part of the settings class <-- probably 
 
 class data {
 public:
@@ -19,21 +18,19 @@ public:
 
 	void setPath(std::string& path);
 
-	void setName(std::string& name);
+	void setName(params& par);
 
-	//static void saveResults(std::vector<observation>& result); // TODO: Intergrate these two methods so I dont have to waste time creating one massive list with everything before writing...
+	void saveResults(std::vector<observation>& result); // TODO: Intergrate these two methods so I dont have to waste time creating one massive list with everything before writing...
 
 	static std::vector<value> getSample(int id);
 
 private:
 
-	std::string outputPath;
+	std::string outputDirectory = "data/Output/";
 
-	std::string fileName;
+	std::string outputFile = "data/Output/default.csv";
 
-	// Forest, timestep, value
-	std::vector<std::tuple<int, int, int, value>> finalOutput; // Remember it is a vector of pointers to save on space 
-
+	int mCounter; // Keeps track of which line we on 
 };
 
 

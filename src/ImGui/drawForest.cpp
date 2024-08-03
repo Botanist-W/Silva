@@ -4,6 +4,8 @@
 drawForest::drawForest(std::shared_ptr<Forest> _forest) :
 	mForest(_forest) 
 {
+    buildSpLib();
+    mForest->buildFromLib(spLibrary);
     buildColourLib();
 }
 
@@ -90,4 +92,29 @@ void drawForest::visualizeForest() {
 
    
     ImGui::End();
+
+    mForest->localStep();
+
 }
+
+
+
+void drawForest::buildSpLib() {
+
+    for (int i = 1; i <= mForest->numSpecies; i++) {
+
+        indiv sp;
+
+        sp.species = i;
+
+        sp.dispersal = 11.2837; // TODO: DO THIS BETTER 
+
+        sp.CNDD = 0;
+
+        sp.HNDD = 0; // TODO :: IMPLEMENT 
+
+        spLibrary.emplace_back(sp);
+    }
+
+
+};

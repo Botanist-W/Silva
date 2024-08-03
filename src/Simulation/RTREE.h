@@ -42,7 +42,7 @@ public:
 	RTREE tree; // R tree 
 
 	// Constructor 
-	rTree(params& s) : mParams(s) {
+	rTree(const params& s) : mParams(s) {
 
 		
 		
@@ -58,7 +58,6 @@ public:
 	float treeDensity;
 	float numIndiv;
 	float numSpecies;
-	float SD;
 	float b1 = 0.01;
 	float b2 = 7;
 	float m = 0.03; // Immigration rate
@@ -82,7 +81,7 @@ public:
 	void build(std::vector<value>&); // This is the important bit 
 
 private:
-	params& mParams;
+	const params& mParams;
 
 	friend class Forest;
 };

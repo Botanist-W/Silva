@@ -1,8 +1,21 @@
 #include "settings.h"
 #include "pch.h"
 
+void settings::set(const params& par) {
+    
+    mParams = par;
+
+};
+
+params settings::get() {
+
+    return mParams;
+
+};
+
 void settings::save(std::string& directory, const params& par) {
-    settingsDirectory = directory;
+    settingsPath = directory;
+    generateDirectory();
     mParams = par;
     saveParams();
     saveNodeMap();
@@ -32,6 +45,8 @@ void settings::generateDirectory() {
 
     settingsDirectory = oss.str();
 
+    //LOG_INFO("File directory: {}", settingsDirectory);
+
 }
 
 // Parameters
@@ -41,7 +56,7 @@ void settings::saveParams() {
 
 
     if (!file.is_open()) {
-        std::cerr << "Failed to open file for writing: " << std::endl;
+        //LOG_ERROR("Failed to open file for writing: {}", file);
         return;
     }
 
@@ -51,6 +66,7 @@ void settings::saveParams() {
     // Write simulation settings
     file << "timeSteps," << mParams.timeSteps << "\n";
     file << "numRep," << mParams.numRep << "\n";
+    file << "captureRate," << mParams.captureRate << "\n";
     file << "numSpecies," << mParams.numSpecies << "\n";
     file << "treeDensity," << mParams.treeDensity << "\n";
 
@@ -77,16 +93,16 @@ void settings::saveParams() {
     file << "extinctionRate," << mParams.extinctionRate << "\n";
 
     file.close();
-    LOG_INFO("Settings saved to: {}", settingsDirectory);
+    //LOG_INFO("Settings saved to: {}", settingsDirectory);
 }
 
-void settings::loadParams() { // Super inefficient but just being safe I guess
+void settings::loadParams() { // Super inefficient but just being safe I guess TOTO: use csv.h
 
     std::ifstream file(
         settingsDirectory + "/params.csv");
 
     if (!file.is_open()) {
-        std::cerr << "Failed to open file for reading: " << settingsDirectory << std::endl;
+        LOG_ERROR("Failed to open file for writing:");
         return;
     }
 
@@ -102,6 +118,9 @@ void settings::loadParams() { // Super inefficient but just being safe I guess
         }
         else if (parameter == "numRep") {
             mParams.numRep = std::stoi(value);
+        }
+        else if (parameter == "captureRate") {
+            mParams.captureRate = std::stoi(value);
         }
         else if (parameter == "numSpecies") {
             mParams.numSpecies = std::stoi(value);
@@ -163,7 +182,7 @@ void settings::loadParams() { // Super inefficient but just being safe I guess
     }
 
     file.close();
-    LOG_INFO("Settings loaded from  {}", settingsDirectory);
+    LOG_INFO("Settings loaded from ");
 }
 // ~ Parameters
 
@@ -173,7 +192,7 @@ void settings::saveNodeMap() {
     std::ofstream file(settingsDirectory + "/nodeMap.csv");
 
     if (!file.is_open()) {
-        std::cerr << "Failed to open file: " << settingsDirectory << std::endl;
+       LOG_ERROR("Failed to open node map file for writing");
         return;
     }
 
@@ -194,12 +213,12 @@ void settings::saveNodeMap() {
 
 }
 
-void settings::loadNodeMap() {
+void settings::loadNodeMap() { // TODO : use csv.h
 
     std::ifstream file(settingsDirectory + "/nodeMap.csv");
 
     if (!file.is_open()) {
-        std::cerr << "Failed to open file: " << settingsDirectory << std::endl;
+       // LOG_ERROR("Failed to open file for writing: {}", file);
         return;
     }
 
@@ -229,7 +248,7 @@ void settings::saveSizeList() {
     std::ofstream file(settingsDirectory + "/sizeList.csv");
 
     if (!file.is_open()) {
-        std::cerr << "Failed to open file for writing: " << std::endl;
+       LOG_ERROR("Failed to open size list file for writing");
         return;
     }
 
@@ -245,31 +264,27 @@ void settings::saveSizeList() {
 
 void settings::loadSizeList() {
 
-    std::ifstream file(settingsDirectory + "/sizeList.csv");
+    std::string file(settingsDirectory + "/sizeList.csv");
 
-    if (!file.is_open()) {
-        std::cerr << "Failed to open file for writing: " << std::endl;
-        return;
+    try {
+        io::CSVReader<2> in(file);
+        int fragment;
+        float size;
+
+        while (in.read_row(fragment, size)) {
+            
+            mParams.fragmentSizeList.emplace_back(size); // TODO: USE a map, seriously save some time 
+        }
+    }
+    catch (const io::error::can_not_open_file& e) {
+        LOG_ERROR("Cannot open file: ");
+    }
+    catch (const io::error::header_missing& e) {
+        LOG_ERROR("Header missing in file: ");
     }
 
-    mParams.fragmentSizeList.resize(mParams.numFragments);
-
-    std::string line;
-    while (std::getline(file, line)) {
-
-        std::stringstream ss(line);
-        std::string value, fragment;
-        std::getline(ss, fragment, ',');
-        std::getline(ss, value, ',');
-
-
-        mParams.fragmentSizeList.push_back(std::stof(value));
-
-    }
-
-    file.close();
-
-
+    LOG_DEBUG("has size list worked? size: {}", mParams.fragmentSizeList.size());
+    LOG_DEBUG("First fragment: {}", mParams.fragmentSizeList[0]);
 }
 
 // Helper functions 
@@ -281,10 +296,3 @@ void settings::ResizeMatrix(int newSize) {
 }
 
 
-
-void settings::setPaths(std::string& path, const char type) {
-    if (type == 's')
-        settingsPath = path;
-    else
-        dataOutputPath = path;
-};

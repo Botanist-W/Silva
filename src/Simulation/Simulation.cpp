@@ -1,32 +1,59 @@
 #include "Simulation.h"
+#include "pch.h"
 
 
-Simulation::Simulation(params& _params) :
-	mParams(_params) {
+Simulation::Simulation(const params& _params, const int& _repeat) :
+	mParams(_params), repeat(_repeat) {
 	setup();
 }
 
 
 void Simulation::setup() {
-	// Build a species library 
-	buildSpLib();
-	LOG_INFO("size of species library: {} ", spLibrary.size());
+	
+	//test();
+	build();
+	setImmigration();
 
-	whichImmigration();
 	
-	for (int i = 0; i < mParams.numFragments; i++) {
-		// Creating instances of Forest class and assigning them an ID just as a guard against stuff
-		forests.emplace_back(std::make_shared<Forest>(mParams, i));
-		forests[i]->buildFromLib(spLibrary);
-		LOG_INFO("Rtree size (N): {}", forests[i]->tree.size());
-	}
-	
-	outputCapture.reserve(mParams.timeSteps);
-	outputSpCount.reserve(mParams.timeSteps);
 
 };
 
 
+void Simulation::build() {
+	
+	if (mParams.buildFromSample) {
+		for (int i = 0; i < mParams.numFragments; i++) {
+			// Creating instances of Forest class and assigning them an ID just as a guard against stuff
+			mForests.emplace_back(std::make_shared<Forest>(mParams, i));
+			
+			int sample = Crand::rand_int(0, 10); // Planning of having 10 samples
+
+			//forests[i]->buildFromForest(data::getSample(0));
+
+			LOG_DEBUG("Rtree size (N): {}", mForests[i]->tree.size());
+			LOG_DEBUG("Built from sample");
+		}
+	}
+	else {
+
+		buildSpLib();
+		LOG_INFO("size of species library: {} ", spLibrary.size());
+
+		for (int i = 0; i < mParams.numFragments; i++) {
+			// Creating instances of Forest class and assigning them an ID just as a guard against stuff
+			mForests.emplace_back(std::make_shared<Forest>(mParams, i));
+
+			mForests[i]->buildFromLib(spLibrary);
+
+			LOG_DEBUG("Rtree size (N): {}", mForests[i]->tree.size());
+			LOG_DEBUG("Built from Library");
+		}
+	}
+
+};
+
+
+// TODO: REMOVE!
 void Simulation::buildSpLib() {
 
 	for (int i = 1; i <= mParams.numSpecies; i++) {
@@ -35,7 +62,7 @@ void Simulation::buildSpLib() {
 
 		sp.species = i;
 
-		sp.dispersal = Crand::rand_double(5, 10); // TODO: move to settings 
+		sp.dispersal = 11.2837; // TODO: DO THIS BETTER 
 
 		sp.CNDD = 0;
 
@@ -47,87 +74,83 @@ void Simulation::buildSpLib() {
 
 };
 
-void Simulation::whichImmigration() {
-	
-	if (forests.size() < 2) // dont know why I am doing it like this 
-		mParams.metaCommunityImmigration = true;
+void Simulation::setImmigration() {
 
-	if (mParams.metaCommunityImmigration)
+
+	if (mForests.size() < 2)
 	{
 		immigration = std::make_unique<metaImmigration>(mParams);
 		immigration->buildMetaCom(spLibrary);
 	}
-	else 
+	else
 		immigration = std::make_unique<networkImmigration>(mParams);
-	
+
 
 };
 
-void Simulation::basicRun() {
+void Simulation::runModel() {
+
 	int captures = mParams.timeSteps / mParams.captureRate;
 
-	int rep = 0; // I dont like all the naming conven
+	int timeStep = 0;
 
-	// A bunch of nested loops are a sign of a good coder right?? 
-	for (size_t repeat = 0; repeat < mParams.numRep; repeat++) {
-		// TODO: Implement multithreading for the repeat
-		LOG_INFO("Repeat: {}", repeat);
+	for (int capture = 0; capture < captures; capture++) {
 
-		int timeStep = 0;
+		LOG_TRACE("Capture: {}", capture);
 
-		for (size_t capture = 0; capture < captures; capture++) {
+		// TODO: set up a loop in which a capture occurs 
+		auto start = std::chrono::high_resolution_clock::now();
 
-			LOG_TRACE("Capture: {}", capture);
+		for (int step = 0; step < mParams.captureRate; step++) { // using int becuase I aint changing things
 
-			// TODO: set up a loop in which a capture occurs 
-			auto start = std::chrono::high_resolution_clock::now();
+			LOG_TRACE("time step: {}", timeStep);
 
-			for (int step = 0; step < mParams.captureRate; step++) { // using int becuase I aint changing things
+			immigration->handleImmigration(step, mForests);
 
-				LOG_TRACE("time step: {}", timeStep);
+			for (int forest = 0; forest < mForests.size(); forest++) { // using int for the ID in m Occurence 
 
-				immigration->handleImmigration(step, forests);
+				LOG_TRACE("Forest: {}", forest);
 
-				for (int forest = 0; forest < forests.size(); forest++) { // using int for the ID in m Occurence 
+				if (immigration->mOccurence(forest, step) == false) {
 
-					LOG_TRACE("Forest: {}", forest);
-
-					if (immigration->mOccurence(forest, step) == false) {
-
-						forests[forest]->localStep(); // TODO: pass in timestep here << SHOULD BE USING A MAP OMG
-					
-					}
-					
-
+					mForests[forest]->localStep(); // TODO: pass in timestep here << SHOULD BE USING A MAP OMG
+					/// Multithreading is slower for this bit which is a piss take :/
 				}
-				timeStep++;
-		
-
-			}  // Step  (in between capture)
-
-			auto end = std::chrono::high_resolution_clock::now();
-			std::chrono::duration<double> duration = end - start;
 
 
-			LOG_INFO("Elapsed time between captures: {} seconds", duration.count());
+			}
+			timeStep++;
+			
 
-			//for (auto& forest : forests)
-				//forest->captureForest(rep, timeStep); // Beautiful ...... I hope
+		}  // Step  (in between capture)
 
-		} // Capture 
+		auto end = std::chrono::high_resolution_clock::now();
+		std::chrono::duration<double> duration = end - start;
+		LOG_DEBUG("Elapsed time between captures: {} seconds", duration.count());
 
-		// Big desitions here << For multithreading but for now I will just do this ... 
-		// Add the captures to the data class
+		int sizeSum = std::accumulate(mParams.fragmentSizeList.begin(), mParams.fragmentSizeList.begin(), 0);
 
-	} // Repeat
+		results.reserve( ((sizeSum * sizeSum)/mForests.size()) * mParams.timeSteps);
 
-	//speciesCount::forestsToCSV(outputCapture, mParams.rtreePath); // TODO : Implement a better output method :) 
+		for (auto& forest : mForests) {
+			std::vector<observation> captures = forest->getCapture(repeat, timeStep);
+			LOG_DEBUG("captures size {}", captures.size());
+			results.insert(results.end(),
+				std::make_move_iterator(captures.begin()),
+				std::make_move_iterator(captures.end()));
+		}
+	} // Capture 
 
 };
 
 
 std::shared_ptr<Forest> Simulation::getForest(int id) {
 
-	return forests[id];
+	return mForests[id];
 
 }
+
+std::vector<observation>& Simulation::getResults() {
+	return results;
+};
+

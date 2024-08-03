@@ -6,6 +6,7 @@
 #include "drawForest.h"
 #include "Simulation/settings.h"
 #include "Simulation/Simulation.h"
+#include "Simulation/dataManagement.h"
 #include <stdio.h>
 #include <memory>
 #include <vector>
@@ -47,25 +48,24 @@ namespace im = ImGui;
 class App {
 public:
 
-	App();
+	App(settings& _settings, data& _data);
 
 	~App();
 
-	void Run();
-
-    params getParams();
+	bool Run();
 
 private:
 
 	int setup();
-
+    void cleanup();
     void Menu();
     void ResizeMatrix(int newSize);
 
-
-    // Drawing 
-    void DrawFragments();
+   
+    void DrawFragments();  //Drawing the fragments as squares n Stuff
     void newFragmentDraw();
+
+
     std::vector<ImVec2> fragmentPositions = {};
     std::vector<bool> fragmentPosCache;
     // ~ Drawing 
@@ -85,11 +85,9 @@ private:
 
 	ImGuiIO io;
 	ImVec4 clear_color;
-    
-    void updateSim();
-    Simulation* mSim;
-    std::unique_ptr<drawForest> mDrawForest;// { mSim.getForest(0) };
-    bool drawAForest = false;
+  
+    settings& mSettings;
+    data& mData;
 
 	params par;
 	bool run = false;
@@ -105,17 +103,11 @@ private:
     std::string settingsDirectory = "";
 
 
-    void generateDirectory();
 
-    void saveParams();
-    void loadParams();
-
-    void loadNodeMap();
-    void saveNodeMap();
-
-    void loadSizeList();
-    void saveSizeList();
-
+    // Debugging things
+    std::shared_ptr<Forest> mForest;
+    std::unique_ptr<drawForest> mDrawForest;
+    bool drawAForest = false;
 };
 
 
