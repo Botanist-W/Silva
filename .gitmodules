@@ -1,3 +1,6 @@
 [submodule "vendor/imgui"]
 	path = vendor/imgui
 	url = https://github.com/ocornut/imgui.git
+[submodule "vendor/geometry"]
+	path = vendor/geometry
+	url = https://github.com/boostorg/geometry.git
