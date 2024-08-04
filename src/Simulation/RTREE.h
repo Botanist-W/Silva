@@ -1,8 +1,7 @@
 
 #include "Individual.h"
 #include <boost/geometry.hpp>
-#include <boost/geometry/geometries/point.hpp>
-#include <boost/geometry/index/rtree.hpp>
+
 #include "settings.h"
 #include "randFuncs.h"
 

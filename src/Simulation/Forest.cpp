@@ -16,11 +16,11 @@ void Forest::setMethods() {
 		comp = std::make_unique<cnddComp>(*this);
 		
 		
-	// Am I doing this right or should these be subclasses << NO, idiot 
+	// Am I doing this right or should these be subclasses << NO, idiot << what?
 
 }
 
-void Forest::setParams() {
+void Forest::setParams() { // TODO: stop doing this 
 
 	searchArea = mParams.searchArea;
 	bounds = mParams.fragmentSizeList[forestID]; 
@@ -67,19 +67,18 @@ void Forest::localStep() {
 		LOG_TRACE("Recruit position: ({}, {})", recPos.get<0>(), recPos.get<1>());
 		LOG_TRACE("Number of search results: {}", searchResults.size());
 
-		if(searchResults.size() < 2){	
-			LOG_WARN("error in searching, no trees around, returning random tree");
-			tree.insert(value(point(Crand::rand_double(0, bounds), Crand::rand_double(0, bounds)), randomTree().second));
-			break;
-		}
+		float NCI = 0;
 
-		float NCI = comp->compIndex(searchResults, parent, recPos); // Main TODO: Figure out how this works 
+		if(searchResults.size() < 2){	
+			LOG_TRACE("No trees in surrounding area, assured recruitment");
+		}
+		else {
+			NCI = comp->compIndex(searchResults, parent, recPos); // Main TODO: Figure out how this works 
+		}
 
 		float pNCI = 1 / (1 + NCI);
 
 		LOG_TRACE ("Probability of success: {} ", pNCI);
-
-		float compare = Crand::randFloat(0, 1);
 
 		// Main check for whether recruitment was successfull 
 		if (pNCI > Crand::randFloat(0,1)) { // Can alter this later ://

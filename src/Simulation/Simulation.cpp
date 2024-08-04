@@ -115,7 +115,7 @@ void Simulation::runModel() {
 
 					mForests[forest]->localStep(); // TODO: pass in timestep here << SHOULD BE USING A MAP OMG
 					/// Multithreading is slower for this bit which is a piss take :/
-				}
+				}  
 
 
 			}
@@ -126,7 +126,7 @@ void Simulation::runModel() {
 
 		auto end = std::chrono::high_resolution_clock::now();
 		std::chrono::duration<double> duration = end - start;
-		LOG_DEBUG("Elapsed time between captures: {} seconds", duration.count());
+		LOG_INFO("Elapsed time between captures: {} seconds", duration.count());
 
 		int sizeSum = std::accumulate(mParams.fragmentSizeList.begin(), mParams.fragmentSizeList.begin(), 0);
 

@@ -13,12 +13,7 @@
 
 
 
-// Might be a bit of a obsolete method because of how much I am offloading to the simulation class :/
-/* Justification:
-*	I want the dispersal and competition classes to have access to the local settings of the forest because I may want to alter the properteies of the forests
-*  for example, I may want forest to have a different sized which would just mean I would have to pass more and more thingymagigs to the functions if done in the simulation class
-*  An alternative is to provide a settings struct but this would be clunky maybe
-*/ // NAH THIS IS GOOD NOW< THANKS PAST SELF
+// TODO: just merge the rtree and the forest class
 
 class Forest : public rTree {
 public:
