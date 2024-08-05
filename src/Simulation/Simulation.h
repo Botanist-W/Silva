@@ -24,6 +24,7 @@ public:
 	void runModel(); 
 
 	std::vector<observation>& getResults();
+	std::vector<std::tuple<int, int, int, int>>& getSpCount();
 
     std::shared_ptr<Forest> getForest(int id); // Just for drawing >> probs remove tho
 
@@ -37,6 +38,7 @@ private:
 	// ~ Constructor stuff
 
 	params mParams; // Do I need const & for thread access??  << Does this mean I need to give everthing a const reference? << SHOULDT BE BLANK
+
 	// Just copy it, then ur good!
 	std::vector<std::shared_ptr<Forest>> mForests;
 
@@ -49,6 +51,7 @@ private:
 
 	// The important bit
 	std::vector<observation> results;
+	std::vector<std::tuple<int, int, int, int>> spCountResults;
 
 };
 

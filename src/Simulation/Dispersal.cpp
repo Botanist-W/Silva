@@ -7,7 +7,7 @@
 
 // DISPERSAL
 
-point dispersal::dispersalKernal(value& parent) {
+inline point dispersal::dispersalKernal(value& parent) {
     // remember that "a" (parent.dispersal) is not the raw mean dispersal distance but insead a transformed value...
 
     // This is the fancy part <-- iverse of a 2dt kernel
@@ -52,36 +52,25 @@ point continuousDisp::disperse(value& parent) {
     return dispTorus(pos);
 };
 
-point continuousDisp::dispTorus(point& pos) {
-
+// Better dispersal that can wrap several time 
+inline point continuousDisp::dispTorus(point& pos) {
     double posX = pos.get<0>();
     double posY = pos.get<1>();
 
-    if (posX > mForest.bounds) {
-        posX = posX - mForest.bounds;
-        LOG_TRACE("Dispersed right");
+    posX = std::fmod(posX, mForest.bounds);
+    posY = std::fmod(posY, mForest.bounds);
+
+    if (posX < 0) {
+        posX += mForest.bounds;
     }
-    else if (posX < 0) {
-        posX = mForest.bounds + posX; // This may become problematic in some cases (when dispersal is very far) 
-        LOG_TRACE("Dispersed left");
-    }
-    if (posY > mForest.bounds) {
-        posY = posY - mForest.bounds;
-        LOG_TRACE("Dispersed top");
-    }
-    else if (posY < 0) {
-        posY = mForest.bounds + posY;
-        LOG_TRACE("Dispersed bottom");
+    if (posY < 0) {
+        posY += mForest.bounds;
     }
 
+    //LOG_TRACE("Dispersed to position: ({}, {})", posX, posY);
 
-    if (posX >= 0 && posY >= 0)
-        return point(posX, posY);
-    else {
-        LOG_WARN("error in dispersal (too far): Returning random point");
-        return point(Crand::rand_double(0, mForest.bounds), Crand::rand_double(0, mForest.bounds)); // This should be very rare!!!
-    }
-};
+    return point(posX, posY);
+}
 
 bool continuousDisp::inBounds(point& p) {
     return true;
@@ -176,9 +165,9 @@ void continuousDisp::posMod(const point& sought, const point& edgeSought, std::v
     double dx = sought.get<0>() - edgeSought.get<0>();
     double dy = sought.get<1>() - edgeSought.get<1>();
 
-    for (int i = 0; i < input.size(); i++) {
-        input[i].first.set<0>((input[i].first.get<0>() - dx));
-        input[i].first.set<1>((input[i].first.get<1>() - dy));
+    for (auto& val : input) {
+        val.first.set<0>(val.first.get<0>() - dx);
+        val.first.set<1>(val.first.get<1>() - dy);
     }
 
 };

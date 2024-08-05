@@ -14,13 +14,19 @@ void Simulation::setup() {
 	build();
 	setImmigration();
 
+	//size_t ComunnitySizes = std::accumulate(mParams.fragmentSizeList.begin(), mParams.fragmentSizeList.end(), 0);
+	//size_t resultSize = (ComunnitySizes * ComunnitySizes * mParams.treeDensity)/mParams.numFragments; // Idk if this is the fasted way but its correct
+	//results.reserve(resultSize); // No copies for u;
 	
-
+	LOG_DEBUG("struggling with reservation?");
 };
 
 
 void Simulation::build() {
-	
+
+	buildSpLib();
+
+	// swap ifs and for loops 
 	if (mParams.buildFromSample) {
 		for (int i = 0; i < mParams.numFragments; i++) {
 			// Creating instances of Forest class and assigning them an ID just as a guard against stuff
@@ -28,7 +34,10 @@ void Simulation::build() {
 			
 			int sample = Crand::rand_int(0, 10); // Planning of having 10 samples
 
-			//forests[i]->buildFromForest(data::getSample(0));
+			std::vector<value> samples = data::getSample(mParams.sampleDirectory, mParams.fragmentSizeList[i]);
+
+			mForests[i]->buildFromForest(samples);
+			mForests[i]->initCounter();
 
 			LOG_DEBUG("Rtree size (N): {}", mForests[i]->tree.size());
 			LOG_DEBUG("Built from sample");
@@ -36,14 +45,14 @@ void Simulation::build() {
 	}
 	else {
 
-		buildSpLib();
-		LOG_INFO("size of species library: {} ", spLibrary.size());
+		LOG_DEBUG("size of species library: {} ", spLibrary.size());
 
 		for (int i = 0; i < mParams.numFragments; i++) {
 			// Creating instances of Forest class and assigning them an ID just as a guard against stuff
 			mForests.emplace_back(std::make_shared<Forest>(mParams, i));
 
 			mForests[i]->buildFromLib(spLibrary);
+			mForests[i]->initCounter();
 
 			LOG_DEBUG("Rtree size (N): {}", mForests[i]->tree.size());
 			LOG_DEBUG("Built from Library");
@@ -56,7 +65,7 @@ void Simulation::build() {
 // TODO: REMOVE!
 void Simulation::buildSpLib() {
 
-	for (int i = 1; i <= mParams.numSpecies; i++) {
+	for (int i = 0; i <= mParams.numSpecies; i++) {
 
 		indiv sp;
 
@@ -90,9 +99,15 @@ void Simulation::setImmigration() {
 
 void Simulation::runModel() {
 
+	LOG_DEBUG("Getting to thr first loop?");
+
 	int captures = mParams.timeSteps / mParams.captureRate;
 
 	int timeStep = 0;
+
+	int sizeSum = std::accumulate(mParams.fragmentSizeList.begin(), mParams.fragmentSizeList.begin(), 0);
+	results.reserve(((sizeSum * sizeSum) / mForests.size()) * mParams.timeSteps);
+
 
 	for (int capture = 0; capture < captures; capture++) {
 
@@ -109,28 +124,24 @@ void Simulation::runModel() {
 
 			for (int forest = 0; forest < mForests.size(); forest++) { // using int for the ID in m Occurence 
 
-				LOG_TRACE("Forest: {}", forest);
-
+				
 				if (immigration->mOccurence(forest, step) == false) {
 
 					mForests[forest]->localStep(); // TODO: pass in timestep here << SHOULD BE USING A MAP OMG
 					/// Multithreading is slower for this bit which is a piss take :/
-				}  
+				} 
 
-
+				mForests[forest]->counter(repeat, timeStep);
+				
 			}
-			timeStep++;
-			
 
+			timeStep++;
+		
 		}  // Step  (in between capture)
 
 		auto end = std::chrono::high_resolution_clock::now();
 		std::chrono::duration<double> duration = end - start;
-		LOG_INFO("Elapsed time between captures: {} seconds", duration.count());
-
-		int sizeSum = std::accumulate(mParams.fragmentSizeList.begin(), mParams.fragmentSizeList.begin(), 0);
-
-		results.reserve( ((sizeSum * sizeSum)/mForests.size()) * mParams.timeSteps);
+		LOG_TRACE("Elapsed time between captures: {} seconds", duration.count());
 
 		for (auto& forest : mForests) {
 			std::vector<observation> captures = forest->getCapture(repeat, timeStep);
@@ -140,6 +151,17 @@ void Simulation::runModel() {
 				std::make_move_iterator(captures.end()));
 		}
 	} // Capture 
+
+
+	for (auto& forest : mForests) {
+		LOG_DEBUG("Uploading forests");
+		std::vector<std::tuple<int, int, int, int>> counts = forest->getSpCount();
+		LOG_DEBUG("Species Count size {}", counts.size());
+		spCountResults.insert(spCountResults.end(),
+			std::make_move_iterator(counts.begin()),
+			std::make_move_iterator(counts.end()));
+
+	}
 
 };
 
@@ -154,3 +176,6 @@ std::vector<observation>& Simulation::getResults() {
 	return results;
 };
 
+std::vector<std::tuple<int, int, int, int>>& Simulation::getSpCount() {
+	return spCountResults;
+};

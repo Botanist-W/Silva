@@ -4,6 +4,7 @@
 #include "RTREE.h"
 #include "Forest.h"
 #include "csv.h"
+#include "randFuncs.h"
 
 
 // Goal of this class
@@ -16,19 +17,30 @@ public:
 	data() {};
 	~data() = default;
 
-	void setPath(std::string& path);
+	void setPath(const std::string& path);
 
 	void setName(params& par);
 
-	void saveResults(std::vector<observation>& result); // TODO: Intergrate these two methods so I dont have to waste time creating one massive list with everything before writing...
+	void saveResults(const std::vector<observation>& result); // TODO: Intergrate these two methods so I dont have to waste time creating one massive list with everything before writing...
 
-	static std::vector<value> getSample(int id);
+	void saveSpCount(const std::vector<std::tuple<int, int, int, int>>& result);
+
+	void setSampleDirectory(params& par, const std::string& );
+
+	static std::vector<value> getSample(const std::string& directory, float bounds);
 
 private:
+
+	void setCaptureName(params& par);
+	void setCountName(params& par);
+
+	std::string sampleDirectory = "data/sampleForests";
 
 	std::string outputDirectory = "data/Output/";
 
 	std::string outputFile = "data/Output/default.csv";
+
+	std::string spCountOutFile = "";
 
 	int mCounter; // Keeps track of which line we on 
 };

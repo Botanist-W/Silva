@@ -16,17 +16,17 @@ Run::Run() {
 
 void Run::init() {
 	// Run app
-	std::cout << "use gui? \n";
-	char gui;
-	std::cin >> gui;
-	if (gui == 'y') {
-		LOG_INFO("Using gui: ");
+	//std::cout << "use gui? \n";
+	//char gui;
+	//std::cin >> gui;
+	//if (gui == 'y') {
+		//LOG_INFO("Using gui: ");
 		mApplication = std::make_unique<App>(mSettings, mData); // Is this best way to manage the settings/data?????
-	}
-	else {
-		LOG_INFO("No gui: ");
-		noGUI();
-	}
+	//}
+	//else {
+		//LOG_INFO("No gui: ");
+		//noGUI();
+	//}
 };
 
 
@@ -41,6 +41,8 @@ void Run::runSimulation() {
 	// Get params
 	mParams = mSettings.get();
 
+	if (mParams.sampleDirectory != "")
+		mParams.buildFromSample = true;
 
 	// Init repeats
 	for (int i = 0; i < mParams.numRep; i++) {
@@ -51,15 +53,18 @@ void Run::runSimulation() {
 	// Run 
 	// TODO: set up a loop in which a capture occurs 
 	auto start = std::chrono::high_resolution_clock::now();
+
 	runRepeats();
+
 	auto end = std::chrono::high_resolution_clock::now();
 	std::chrono::duration<double> duration = end - start;
-	LOG_INFO("FINSIHED SIMULATION... UPLOADING", duration.count());
+	LOG_INFO("FINSIHED SIMULATION... UPLOADING {} ", duration.count());
 
 
 	for (int i = 0; i < mRepeats.size(); i++) {
 		LOG_DEBUG("Saving result: {}", i); 
 		mData.saveResults(mRepeats[i]->getResults());
+		mData.saveSpCount(mRepeats[i]->getSpCount());
 	}
 
 };

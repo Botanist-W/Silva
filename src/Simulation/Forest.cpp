@@ -36,12 +36,18 @@ void Forest::setParams() { // TODO: stop doing this
 
 }
 
+void Forest::initCounter() {
+	mCounter = std::make_unique<speciesCount>(*this);
+};
+
 
 // Step after immigration has been decided in the 
 void Forest::localStep() {
 
 	// Remove a random tree
-	tree.remove(randomTree()); // Where should this go << who really cares?
+	value rmTree = randomTree();
+
+	removeTree(rmTree); // Where should this go << who really cares?
 
 	searchResults.clear(); // just being nice and safe 
 
@@ -63,7 +69,7 @@ void Forest::localStep() {
 		
 		searchResults = search(recPos, searchArea);
 
-		LOG_TRACE("Parent position: ({}, {})", parent.first.get<0>(), parent.first.get<1>());
+		//LOG_TRACE("Parent position: ({}, {})", parent.first.get<0>(), parent.first.get<1>());
 		LOG_TRACE("Recruit position: ({}, {})", recPos.get<0>(), recPos.get<1>());
 		LOG_TRACE("Number of search results: {}", searchResults.size());
 
@@ -83,7 +89,7 @@ void Forest::localStep() {
 		// Main check for whether recruitment was successfull 
 		if (pNCI > Crand::randFloat(0,1)) { // Can alter this later ://
 			LOG_TRACE("Recruitment SUCCESS");
-			tree.insert(value(recPos, parent.second));
+			addTree(value(recPos, parent.second));
 			break;
 		} 
 		else
@@ -105,7 +111,7 @@ void Forest::localExtinction(int& extSp, std::vector<indiv>& spLib) {
 
 		if (element.second.species == extSp) {
 			//This bout to be hella inefficient but I litterally dont know how else to do it without being actually smart
-			tree.remove(element);
+			removeTree(element);
 			int newSp;
 			indiv newID;
 
@@ -155,7 +161,7 @@ std::vector<observation> Forest::getCapture(int repeat, int timeStep) {
 void Forest::buildFromForest(std::vector<value>& input) {
 
 	// If the input is larger than this forest instance then it can use a random sample from the input 
-	int setSize = Crand::rand_int(0, int(input.size() - bounds));
+	int setSize = Crand::rand_int(0, int(input.size() - numIndiv));
 
 	for (int i = setSize; i < numIndiv + setSize; i++)
 		tree.insert(input[i]); // This would be interesting to see how this works :/ because of the R tree not being linear
@@ -163,3 +169,12 @@ void Forest::buildFromForest(std::vector<value>& input) {
 };
 
 
+void Forest::counter(int repeat, int timeStep) {
+
+	mCounter->countMod(removedSp, addedSp, timeStep, forestID, repeat);
+
+}
+
+std::vector<std::tuple<int, int, int, int>> Forest::getSpCount() {
+	return mCounter->spCountList;
+};

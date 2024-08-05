@@ -48,6 +48,7 @@ struct params { //
     float extinctionRate = 0.0001;
 
 
+    std::string sampleDirectory = "";
 
 };
 

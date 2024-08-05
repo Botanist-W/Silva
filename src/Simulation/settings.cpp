@@ -182,7 +182,8 @@ void settings::loadParams() { // Super inefficient but just being safe I guess T
     }
 
     file.close();
-    LOG_INFO("Settings loaded from ");
+  
+
 }
 // ~ Parameters
 

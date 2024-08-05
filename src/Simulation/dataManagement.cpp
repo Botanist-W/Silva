@@ -1,45 +1,58 @@
-
 #include "dataManagement.h"
 #include "pch.h"
 
-
-void data::setPath(std::string& path) {
+void data::setPath(const std::string& path) {
     outputDirectory = path;
-};
+}
 
 void data::setName(params& par) {
+    setCountName(par);
+    setCaptureName(par);
+}
 
+void data::setCaptureName(params& par) {
     std::ostringstream oss;
-
-    oss << outputDirectory
-        << "/Result_"
+    oss << outputDirectory << "/Result_"
         << "nf" << par.numFragments << "_"
         << "m" << par.m << "_"
         << "sp" << par.numSpecies << "_"
         << "td" << par.treeDensity << "_"
         << "t" << par.timeSteps << ".csv";
-
- 
-
     outputFile = oss.str();
 
-    // Write the header of the file here?? not much point is making another method for this
     std::ofstream file(outputFile);
+    if (!file.is_open()) {
+        LOG_ERROR("Failed to open OUTPUT file for writing");
+        return;
+    }
 
-    //  R will thank you 
-    file << "Repeat" << "," << "Forest" << "," << "TimeStep" << "," << "ID" << "," << "Species" << "," << "x" << "," << "y" << "\n";
+    file << "Repeat,Forest,TimeStep,ID,Species,x,y\n";
+}
 
-};
+void data::setCountName(params& par) {
+    std::ostringstream oss;
+    oss << outputDirectory << "/SpeciesCount_"
+        << "nf" << par.numFragments << "_"
+        << "m" << par.m << "_"
+        << "sp" << par.numSpecies << "_"
+        << "td" << par.treeDensity << "_"
+        << "t" << par.timeSteps << ".csv";
+    spCountOutFile = oss.str();
 
+    std::ofstream file(spCountOutFile);
+    if (!file.is_open()) {
+        LOG_ERROR("Failed to open species count file for writing");
+        return;
+    }
 
-void data::saveResults(std::vector<observation>& result) {
-    
-    LOG_DEBUG("size of output result: {}", result.size());
+    file << "Repeat,Forest,TimeStep,SpCount\n";
+    LOG_INFO("Set name of Count file");
+}
 
-    std::ofstream file;
+void data::saveResults(const std::vector<observation>& result) {
+    LOG_DEBUG("Size of output result: {}", result.size());
 
-    file.open(outputFile, std::ios_base::app);
-
+    std::ofstream file(outputFile, std::ios_base::app);
     if (!file.is_open()) {
         LOG_ERROR("Failed to open OUTPUT file for writing");
         return;
@@ -54,34 +67,61 @@ void data::saveResults(std::vector<observation>& result) {
             << obs.x << ","
             << obs.y << "\n";
     }
-   
+}
 
-};
+void data::setSampleDirectory(params& par, const std::string& path) {
+    par.sampleDirectory = path;
+    LOG_INFO("Loaded sample directory");
+}
 
+std::vector<value> data::getSample(const std::string& directory, float bounds) {
+    std::ostringstream oss;
 
-std::vector<value> data::getSample(int id) {
+    int sampleIndex = Crand::rand_int(1, 1); //TODO: ADJUST
+
+    oss << directory << "/sample_1.csv";
+    std::string filename = oss.str();
+
     std::vector<value> result;
-    try{
-        io::CSVReader<7> in("C:/dev/test.csv");
-        in.read_header(io::ignore_extra_column, "x", "y", "uniqueID", "species", "dispersal", "HNDD", "CNDD");
+    try {
+        io::CSVReader<5> in(filename);
+        in.read_header(io::ignore_extra_column, "uniqueID", "species", "dispersal", "HNDD", "CNDD");
 
         float x, y;
         int uniqueID, species;
         float dispersal, HNDD, CNDD;
 
-        while (in.read_row(x, y, uniqueID, species, dispersal, HNDD, CNDD)) {
-            point p(x, y);
+        while (in.read_row(uniqueID, species, dispersal, HNDD, CNDD)) {
+            point p(Crand::randFloat(0, bounds), Crand::randFloat(0, bounds));
             indiv ind{ uniqueID, species, dispersal, HNDD, CNDD };
             result.emplace_back(p, ind);
         }
     }
     catch (const io::error::can_not_open_file& e) {
-        LOG_ERROR("Cannot open file: ");
+        LOG_ERROR("Cannot open file: {}", e.what());
     }
     catch (const io::error::header_missing& e) {
-        LOG_ERROR("Header missing in file: ");
+        LOG_ERROR("Header missing in file: {}", e.what());
     }
 
+    LOG_DEBUG("Build from sample size of result: {}", result.size());
     return result;
+}
 
-};
+void data::saveSpCount(const std::vector<std::tuple<int, int, int, int>>& result) {
+    if(result.size() < 1)
+        LOG_ERROR(" NOTHING IN SPEICES COUNT: Size of species count: {}", result.size());
+
+    std::ofstream file(spCountOutFile, std::ios_base::app);
+    if (!file.is_open()) {
+        LOG_ERROR("Failed to open species count file for writing");
+        return;
+    }
+
+    for (const auto& obs : result) {
+        file << std::get<0>(obs) << ","
+            << std::get<1>(obs) << ","
+            << std::get<2>(obs) << ","
+            << std::get<3>(obs) << "\n";
+    }
+}

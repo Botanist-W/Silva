@@ -10,10 +10,14 @@
 #include "Competition.h"
 #include <memory>
 #include <iostream>
+#include "spCount.h"
 
-
+class speciesCount;
 
 // TODO: just merge the rtree and the forest class
+
+// MAIN TODO: Make a base Forest class with subclasses of this type of forest and then a metacommunity. This will allow meta communities to be linked into the simulation 
+
 
 class Forest : public rTree {
 public:
@@ -21,10 +25,11 @@ public:
 	const int forestID; // Just to keep track of the ID of the thing 
 
 	Forest(const params& _params, const int& _ID) : rTree(_params), forestID(_ID) { 
-		LOG_INFO("Created forest: {}", forestID);
+		LOG_DEBUG("Created forest: {}", forestID);
 		//searchResults.reserve(Pi*(searchArea*searchArea)*treeDensity*2); // Reserving twice the average expected number of trees returned in each search to prevent reallocation
 		setParams();
 		setMethods();
+
 		
 	}
 
@@ -38,9 +43,13 @@ public:
 
 	void buildFromForest(std::vector<value>&);
 
-	//void captureForest(int repeat, int timeStep); // TODO: REMOVE
-
+	void initCounter();
+	
 	std::vector<observation> getCapture(int repeat, int timeStep); 
+
+	void counter(int repeat, int timeStep);
+
+	std::vector<std::tuple<int, int, int, int>> getSpCount();
 
 private:
 
@@ -48,8 +57,12 @@ private:
 
 	void setParams();
 
+	
+
 	std::unique_ptr<dispersal> disp;
 	std::unique_ptr<competition> comp;
+
+	std::unique_ptr<speciesCount> mCounter;
 
 	// These search results are constantly used so keep on stack or something, idk
 	std::vector<value> searchResults;

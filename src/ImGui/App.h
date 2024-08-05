@@ -101,6 +101,7 @@ private:
     std::string dataOutputPath = "";
     std::string settingsPath = "";
     std::string settingsDirectory = "";
+    std::string sampleDirectory = "";
 
 
 
@@ -108,6 +109,9 @@ private:
     std::shared_ptr<Forest> mForest;
     std::unique_ptr<drawForest> mDrawForest;
     bool drawAForest = false;
+
+
+    bool sampleForests = false;
 };
 
 

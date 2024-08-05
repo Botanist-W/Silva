@@ -82,6 +82,9 @@ public:
 private:
 	const params& mParams;
 
+	int addedSp;
+	int removedSp;
+
 	friend class Forest;
 };
 

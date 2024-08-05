@@ -38,15 +38,17 @@ std::vector<value> rTree::search(point sought, float& searchArea) {
 
 void rTree::addTree(value add) {
     tree.insert(add);
+    addedSp = add.second.species;
 };
 
 void rTree::removeTree(value remove) {
     tree.remove(remove);
+    removedSp = remove.second.species;
 };
 
 
 // OOPS! I'll let you figue out what's wrong with this 
-/*
+
 value rTree::randomTree() {
 
     point point_rng = point(Crand::randFloat(0, bounds), Crand::randFloat(0, bounds));
@@ -56,12 +58,12 @@ value rTree::randomTree() {
     return result;
 
 };
-*/
 
 
-value rTree::randomTree() {
-    return *std::next(tree.begin(), Crand::rand_int(0, tree.size() - 1));
-};
+
+//value rTree::randomTree() {
+  //  return *std::next(tree.begin(), Crand::rand_int(0, tree.size() - 1));
+//};
 
 std::vector<value> rTree::getValues() { // I know this is slow but I forgot how to do it propely 
 

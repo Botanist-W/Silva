@@ -291,18 +291,30 @@ void App::Menu() {
 
     char buffer[256];
     strncpy(buffer, settingsPath.c_str(), sizeof(buffer));
+    buffer[sizeof(buffer) - 1] = '\0'; 
     im::SeparatorText("Save settings File Path: ");
-    if (ImGui::InputText(" ", buffer, sizeof(buffer))) {
+    if (ImGui::InputText("##SettingsPath", buffer, sizeof(buffer))) {
         settingsPath = std::string(buffer);
     }
 
     char setBuffer[256];
     strncpy(setBuffer, dataOutputPath.c_str(), sizeof(setBuffer));
+    setBuffer[sizeof(setBuffer) - 1] = '\0'; 
     im::SeparatorText("Output File Path: ");
-    if (ImGui::InputText("  ", setBuffer, sizeof(setBuffer))) {
+    if (ImGui::InputText("##DataOutputPath", setBuffer, sizeof(setBuffer))) {
         dataOutputPath = std::string(setBuffer);
+        
     }
 
+    char sampleBuffer[256];
+    strncpy(sampleBuffer, sampleDirectory.c_str(), sizeof(sampleBuffer));
+    sampleBuffer[sizeof(sampleBuffer) - 1] = '\0'; 
+    im::SeparatorText("Sample Forest Directory: ");
+    if (ImGui::InputText("##SampleDirectory", sampleBuffer, sizeof(sampleBuffer))) {
+        sampleDirectory = std::string(sampleBuffer);
+        mData.setSampleDirectory(par, sampleDirectory);
+        
+    }
 
     if (im::Button("Save settings"))
         saveSettings = true;

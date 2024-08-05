@@ -2,7 +2,7 @@
 #include "pch.h"
 
 // 
-double competition::densityKernel(point& recruit, point& neighbour, float& c) { 
+inline double competition::densityKernel(point& recruit, point& neighbour, float& c) { 
 	// This is modelled off of Kalyuzky et al 2023 
 	return c/(1 + pow((bg::distance(recruit, neighbour) / mForest.b1), mForest.b2));
 };
