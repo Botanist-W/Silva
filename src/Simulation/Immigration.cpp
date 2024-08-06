@@ -8,6 +8,8 @@ metaImmigration::metaImmigration(params& _params) : Immigration(_params) {
 };
 
 
+
+// Here is the poor memory use!! 
 networkImmigration::networkImmigration(params& _params) : Immigration(_params) {
 	temporalImmigrationMap = std::vector<std::vector<int>>(mParams.numFragments, std::vector<int>(mParams.timeSteps)); // Setting the size!
 	temporalImmigrationBool = std::vector<std::vector<bool>>(mParams.numFragments, std::vector<bool>(mParams.timeSteps));
@@ -117,14 +119,36 @@ void networkImmigration::createTemporaMap(std::vector<std::vector<float>>& nodes
 };
 
 
-void networkImmigration::printNodes(std::vector<std::vector<float>>& nodes) {
+
+
+// Just printing the head
+void networkImmigration::printImmigrationMap() {
 	
+	// First 20 rows 
+	for (int i = 0; i < 20; i++) {
+
+		for (int j = 0; j < temporalImmigrationMap.size(); j++) {
+
+			std::cout << " ," << temporalImmigrationMap[j][i];
+
+		}
+		std::cout << "\n";
+	}
+
+
+
+};
+
+
+
+void networkImmigration::printNodes(std::vector<std::vector<float>>& nodes) {
+
 	LOG_DEBUG("Printing nodes: ");
 
 	for (int i = 0; i < nodes.size(); i++) {
-		
+
 		for (int j = 0; j < nodes[i].size(); j++) {
-			
+
 			std::cout << " ," << nodes[i][j];
 
 		}
@@ -149,25 +173,6 @@ void networkImmigration::printNodes(std::vector<std::vector<float>>& nodes) {
 	else {
 		LOG_DEBUG("Weights should work: {}", sum_weights);
 	}
-
-
-};
-
-
-// Just printing the head
-void networkImmigration::printImmigrationMap() {
-	
-	// First 20 rows 
-	for (int i = 0; i < 20; i++) {
-
-		for (int j = 0; j < temporalImmigrationMap.size(); j++) {
-
-			std::cout << " ," << temporalImmigrationMap[j][i];
-
-		}
-		std::cout << "\n";
-	}
-
 
 
 };

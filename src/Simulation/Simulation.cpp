@@ -146,14 +146,15 @@ void Simulation::runModel() {
 		for (auto& forest : mForests) {
 			std::vector<observation> captures = forest->getCapture(repeat, timeStep);
 			LOG_DEBUG("captures size {}", captures.size());
-			results.insert(results.end(),
+			results.insert(results.end(), // This might be where the terrible memory useage is coming from... scattering the results everywhere
 				std::make_move_iterator(captures.begin()),
 				std::make_move_iterator(captures.end()));
 		}
 	} // Capture 
 
-
+	
 	for (auto& forest : mForests) {
+		forest->counter(repeat, timeStep);// Last capture hopefully
 		LOG_DEBUG("Uploading forests");
 		std::vector<std::tuple<int, int, int, int>> counts = forest->getSpCount();
 		LOG_DEBUG("Species Count size {}", counts.size());

@@ -29,6 +29,7 @@ void Forest::setParams() { // TODO: stop doing this
 	numSpecies = mParams.numSpecies;
 	b1 = mParams.b1;
 	b2 = mParams.b2;
+	timeSteps = mParams.timeSteps;
 
 	LOG_TRACE("search area {}", searchArea);
 	LOG_TRACE("bounds {}", bounds);

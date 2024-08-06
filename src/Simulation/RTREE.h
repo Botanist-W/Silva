@@ -55,14 +55,15 @@ public:
 	float searchArea;
 	float bounds;
 	float treeDensity;
-	float numIndiv;
-	float numSpecies;
+	int numIndiv;
+	int numSpecies;
 	float b1 = 0.01;
 	float b2 = 7;
 	float m = 0.03; // Immigration rate
 	float HNDD = 0.1; // Default HNDD strength TODO: implement
 	float CNDD = 0.1; // Default CNDD
 	float b = 2;
+	int timeSteps = 0;
 	
 	// Functions
 	std::vector<value> search(point foo, float& searchArea);

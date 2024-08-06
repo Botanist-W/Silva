@@ -59,8 +59,8 @@ void data::saveResults(const std::vector<observation>& result) {
     }
 
     for (const auto& obs : result) {
-        file << obs.repeat << ","
-            << obs.forest << ","
+        file << obs.repeat + 1<< ","
+            << obs.forest + 1<< ","
             << obs.timeStep << ","
             << obs.uniqueID << ","
             << obs.species << ","
@@ -119,8 +119,8 @@ void data::saveSpCount(const std::vector<std::tuple<int, int, int, int>>& result
     }
 
     for (const auto& obs : result) {
-        file << std::get<0>(obs) << ","
-            << std::get<1>(obs) << ","
+        file << std::get<0>(obs) + 1 << ","
+            << std::get<1>(obs) + 1 << ","
             << std::get<2>(obs) << ","
             << std::get<3>(obs) << "\n";
     }
