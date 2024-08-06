@@ -1,96 +1,85 @@
 #pragma once
 
-
 #include "settings.h"
 #include "randFuncs.h"
 #include "RTREE.h"
 #include "Forest.h"
 #include "Log.h"
+#include <memory>
+#include <vector>
+#include <random>
+#include <numeric>
+#include <iostream>
 
-class Forest; // Some nice forward declaration  :)))
+class Forest; // Forward declaration just in case 
 
 #ifndef IMMIGRATION
 #define IMMIGRATION
 
-
-
-class Immigration
-{
+class Immigration {
 public:
 
-	Immigration(params& _params): mParams(_params){
+    Immigration(params& _params) : mParams(_params) {}
 
-	};
+    virtual void handleImmigration(int timeStep, std::vector<std::shared_ptr<Forest>> forests) = 0;
 
-	virtual void handleImmigration(int timeStep, std::vector<std::shared_ptr<Forest>> forests) = 0;
+    virtual bool mOccurence(int ID, int step) = 0;
 
-	virtual bool mOccurence(int& ID, int&step) = 0;
+    virtual void buildMetaCom(std::vector<indiv> spLib) = 0;
 
-	virtual void buildMetaCom(std::vector<indiv> spLib) =0;
+protected:
+    params& mParams;
 
-	params& mParams;
-	
-	std::bernoulli_distribution mDist{ mParams.m }; // True or false for a chance of immigration << thanks standard lib
+    std::bernoulli_distribution mDist{ mParams.m };
 
 };
+
+
 
 
 class metaImmigration : public Immigration {
 public:
-	
-	metaImmigration(params& _params);
 
-	void handleImmigration(int timeStep, std::vector<std::shared_ptr<Forest>> forests) override;
+    metaImmigration(params& _params);
 
-	bool mOccurence(int& ID, int& step) override;
+    void handleImmigration(int timeStep, std::vector<std::shared_ptr<Forest>> forests) override;
 
-	void buildMetaCom(std::vector<indiv> spLib) override;
+    bool mOccurence(int ID, int step) override;
 
-private:
-	bool doesImmigrationOccur = false;
-
-	std::vector<indiv> metaCom;
-
-
-
-};
-
-
-class networkImmigration : public Immigration { // Passer class --> just preverves some code that is used in both network immigration senaios but not the metaCommunity immigatration 
-public: 
-	
-	networkImmigration(params& _params);
-
-	void handleImmigration(int timeStep, std::vector<std::shared_ptr<Forest>> forests) override;
-
-	bool mOccurence(int& ID, int& step) override;
-
-	void buildMetaCom(std::vector<indiv> spLib) override;
+    void buildMetaCom(std::vector<indiv> spLib) override;
 
 private:
 
-	
-	std::vector<std::vector<bool>> temporalImmigrationBool;// // To check whether immigration occurs at all for that Forest << Even nessasay ?? >> probs not 
-	std::vector<std::vector<int>> temporalImmigrationMap;// { mSetting.numFragments, std::vector<int>(mSetting.timeSteps, 0) }; // To check where the immigration comes from // Reserving space and Set the whole lot to 0 cus most of them will be 
-	// U might be wondering why I did this statically and the answer is I have no idea :( but it works so ...
+    bool doesImmigrationOccur = false;
 
-	void printNodes(std::vector<std::vector<float>>& nodes);
-	void printImmigrationMap();
+    std::vector<indiv> metaCom;
 
-	//template<typename T> // Take int or float
-	void createTemporaMap(std::vector<std::vector<float>>&);
-
-	
 };
 
 
 
 
 
+class networkImmigration : public Immigration {
+public:
+
+    networkImmigration(params& _params);
+
+    void handleImmigration(int timeStep, std::vector<std::shared_ptr<Forest>> forests) override;
+
+    bool mOccurence(int ID, int step) override;
+
+    void buildMetaCom(std::vector<indiv> spLib) override;
 
 
+private:
+    std::vector<std::vector<float>> nodeWeights;
+    std::mt19937 gen; // I wanted to keep random number generation together but this is actually way better but it's too late now 
 
 
+    // Keeping just in case but TODO: remove
+    void printNodes(const std::vector<std::vector<float>>& nodes); 
+    void printImmigrationMap();
+};
 
-
-#endif // !IMMIGRATION
+#endif // IMMIGRATION
