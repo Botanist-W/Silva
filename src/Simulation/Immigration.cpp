@@ -19,7 +19,7 @@ void networkImmigration::buildMetaCom(std::vector<indiv> spLib) { // I'm too sca
 }
 
 
-void metaImmigration::handleImmigration(int timeStep, std::vector<std::shared_ptr<Forest>> forests) {
+void metaImmigration::handleImmigration(std::vector<std::shared_ptr<Forest>> forests) {
     for (size_t i = 0; i < forests.size(); i++) {
         if (mDist(gen)) {
             forests[i]->removeTree(forests[i]->randomTree());
@@ -33,7 +33,7 @@ void metaImmigration::handleImmigration(int timeStep, std::vector<std::shared_pt
     }
 };
 
-bool metaImmigration::mOccurence(int ID, int step) {
+bool metaImmigration::mOccurence(size_t ID) {
     return doesImmigrationOccur;
 }
 
@@ -48,13 +48,20 @@ bool metaImmigration::mOccurence(int ID, int step) {
 
 networkImmigration::networkImmigration(params& _params) : Immigration(_params), gen(std::random_device{}()) {
     nodeWeights = _params.nodeMap;
+
+    for (size_t i = 0; i < mParams.numFragments; i++)
+        mOccurrenceMap[i] = false;
+
     LOG_INFO("Using network immigration");
 }
 
 
-void networkImmigration::handleImmigration(int timeStep, std::vector<std::shared_ptr<Forest>> forests) {
+void networkImmigration::handleImmigration(std::vector<std::shared_ptr<Forest>> forests) {
     for (size_t i = 0; i < forests.size(); i++) {
         if (mDist(gen)) { // Does immigration occur?
+
+            mOccurrenceMap[i] = true;
+
             forests[i]->removeTree(forests[i]->randomTree());
 
             std::discrete_distribution<int> dist(nodeWeights[i].begin(), nodeWeights[i].end());
@@ -64,12 +71,15 @@ void networkImmigration::handleImmigration(int timeStep, std::vector<std::shared
 
             LOG_TRACE("Immigration occurred from fragment: {} to {}", i, targetForestIndex);
         }
+        else {
+            mOccurrenceMap[i] = false;
+        }
     }
 }
 
 
-bool networkImmigration::mOccurence(int ID, int step) {
-    return mDist(gen);
+bool networkImmigration::mOccurence(size_t ID) {
+    return mOccurrenceMap[ID];
 }
 
 
@@ -78,69 +88,28 @@ bool networkImmigration::mOccurence(int ID, int step) {
 
 
 
+// No immigration
 
-
-
-
-
-
-
-
-// Some useless crap
-// 
-// 
-// Just printing the head
-void networkImmigration::printImmigrationMap() {
-
-    // First 20 rows 
-    for (int i = 0; i < 20; i++) {
-
-        for (int j = 0; j < temporalImmigrationMap.size(); j++) {
-
-            std::cout << " ," << temporalImmigrationMap[j][i];
-
-        }
-        std::cout << "\n";
-    }
-
-
+noImmigration::noImmigration(params& _params) : Immigration(_params) {
+    LOG_DEBUG("No immigration here");
 
 };
 
+// Just a class that does nothing if I forgot or purposly dont want have any immigration
+
+void noImmigration::handleImmigration( std::vector<std::shared_ptr<Forest>> forests) {
+}
+
+bool noImmigration::mOccurence(size_t ID) {
+    return false; 
+}
+
+void noImmigration::buildMetaCom(std::vector<indiv> spLib) {
+}
+
+// ~ No immigration 
 
 
-void networkImmigration::printNodes(std::vector<std::vector<float>>& nodes) {
-
-    LOG_DEBUG("Printing nodes: ");
-
-    for (int i = 0; i < nodes.size(); i++) {
-
-        for (int j = 0; j < nodes[i].size(); j++) {
-
-            std::cout << " ," << nodes[i][j];
-
-        }
-        std::cout << " ,\n";
-    }
-    std::cout << "\n";
 
 
-    LOG_DEBUG("Printing Weights");
 
-    std::vector<int> flatten_weights;
-    for (const auto& row : nodes) {
-        flatten_weights.insert(flatten_weights.end(), row.begin(), row.end());
-    }
-
-    int sum_weights = std::accumulate(flatten_weights.begin(), flatten_weights.end(), 0);
-
-    if (sum_weights <= 0) {
-        LOG_ERROR("Error The sum of weights is zero or negative: {}", sum_weights);
-        return;
-    }
-    else {
-        LOG_DEBUG("Weights should work: {}", sum_weights);
-    }
-
-
-};

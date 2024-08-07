@@ -34,7 +34,7 @@ void settings::generateDirectory() {
 
     std::ostringstream oss;
     oss << settingsPath
-        << "Settings_"
+        << "/Settings_"
         << "nf" << mParams.numFragments << "_"
         << "m" << mParams.m << "_"
         << "sp" << mParams.numSpecies << "_"

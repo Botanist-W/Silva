@@ -15,7 +15,7 @@ struct indiv {
     float HNDD;
     float CNDD;
 
-
+    // I will eventually add other traits to this
 
     // Define the equality comparison operator
     bool operator==(const indiv& other) const {

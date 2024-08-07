@@ -3,7 +3,7 @@
 speciesCount::speciesCount(Forest& _forest) : mForest(_forest) {
     nSpVec = firstCount();
     totalSpVec.push_back(firstRichness());
-    captureRate = mForest.timeSteps / 100;
+    captureRate = mForest.timeSteps / 500;
     LOG_INFO("Capture rate: {}", captureRate);
     stepCounter = captureRate;
 }

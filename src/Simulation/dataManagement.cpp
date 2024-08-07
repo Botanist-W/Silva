@@ -76,26 +76,28 @@ void data::setSampleDirectory(params& par, const std::string& path) {
 
 std::vector<value> data::getSample(const std::string& directory, float bounds) {
     std::ostringstream oss;
-
+    LOG_DEBUG("loading smaple");
     int sampleIndex = Crand::rand_int(1, 1); //TODO: ADJUST
 
     oss << directory << "/sample_1.csv";
     std::string filename = oss.str();
 
-    std::vector<value> result;
+    std::vector<value> result; // TODO: implement x and y with bg::box 
     try {
-        io::CSVReader<5> in(filename);
-        in.read_header(io::ignore_extra_column, "uniqueID", "species", "dispersal", "HNDD", "CNDD");
+        io::CSVReader<7> in(filename);
+        in.read_header(io::ignore_extra_column, "uniqueID", "species", "x", "y", "dispersal", "HNDD", "CNDD");
 
         float x, y;
         int uniqueID, species;
         float dispersal, HNDD, CNDD;
 
-        while (in.read_row(uniqueID, species, dispersal, HNDD, CNDD)) {
-            point p(Crand::randFloat(0, bounds), Crand::randFloat(0, bounds));
+        while (in.read_row(uniqueID, species, x, y, dispersal, HNDD, CNDD)) {
+            point p(x, y);
             indiv ind{ uniqueID, species, dispersal, HNDD, CNDD };
             result.emplace_back(p, ind);
         }
+
+
     }
     catch (const io::error::can_not_open_file& e) {
         LOG_ERROR("Cannot open file: {}", e.what());

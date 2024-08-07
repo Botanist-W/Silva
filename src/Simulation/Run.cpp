@@ -45,7 +45,7 @@ void Run::runSimulation() {
 		mParams.buildFromSample = true;
 
 	// Init repeats
-	for (int i = 0; i < mParams.numRep; i++) {
+	for (int i = 0; i < mParams.numRep; i++) { // TODO: move to multithreadsing 
 		mRepeats.emplace_back(std::make_unique<Simulation>(mParams, i));
 		LOG_DEBUG("Created forest: {}", i);
 	}

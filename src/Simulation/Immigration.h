@@ -21,13 +21,14 @@ public:
 
     Immigration(params& _params) : mParams(_params) {}
 
-    virtual void handleImmigration(int timeStep, std::vector<std::shared_ptr<Forest>> forests) = 0;
+    virtual void handleImmigration(std::vector<std::shared_ptr<Forest>> forests) = 0;
 
-    virtual bool mOccurence(int ID, int step) = 0;
+    virtual bool mOccurence(size_t ID) = 0;
 
     virtual void buildMetaCom(std::vector<indiv> spLib) = 0;
 
 protected:
+
     params& mParams;
 
     std::bernoulli_distribution mDist{ mParams.m };
@@ -42,9 +43,9 @@ public:
 
     metaImmigration(params& _params);
 
-    void handleImmigration(int timeStep, std::vector<std::shared_ptr<Forest>> forests) override;
+    void handleImmigration(std::vector<std::shared_ptr<Forest>> forests) override;
 
-    bool mOccurence(int ID, int step) override;
+    bool mOccurence(size_t ID) override;
 
     void buildMetaCom(std::vector<indiv> spLib) override;
 
@@ -65,21 +66,34 @@ public:
 
     networkImmigration(params& _params);
 
-    void handleImmigration(int timeStep, std::vector<std::shared_ptr<Forest>> forests) override;
+    void handleImmigration(std::vector<std::shared_ptr<Forest>> forests) override;
 
-    bool mOccurence(int ID, int step) override;
+    bool mOccurence(size_t ID) override;
 
     void buildMetaCom(std::vector<indiv> spLib) override;
 
 
 private:
+    std::map<size_t, bool> mOccurrenceMap;
     std::vector<std::vector<float>> nodeWeights;
     std::mt19937 gen; // I wanted to keep random number generation together but this is actually way better but it's too late now 
 
 
-    // Keeping just in case but TODO: remove
-    void printNodes(const std::vector<std::vector<float>>& nodes); 
-    void printImmigrationMap();
+  
+};
+
+
+class noImmigration : public Immigration {
+public:
+
+    noImmigration(params& _params);
+
+    void handleImmigration(std::vector<std::shared_ptr<Forest>> forests) override;
+
+    bool mOccurence(size_t step) override;
+
+    void buildMetaCom(std::vector<indiv> spLib) override;
+
 };
 
 #endif // IMMIGRATION

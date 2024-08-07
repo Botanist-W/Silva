@@ -18,7 +18,7 @@ void Log::Init() {
 #ifdef NDEBUG
     s_Logger->set_level(spdlog::level::info);
 #else
-    s_Logger->set_level(spdlog::level::trace); 
+    s_Logger->set_level(spdlog::level::info); 
 #endif
 
     spdlog::set_default_logger(s_Logger);

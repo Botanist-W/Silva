@@ -161,11 +161,65 @@ std::vector<observation> Forest::getCapture(int repeat, int timeStep) {
 // TODO : Implement
 void Forest::buildFromForest(std::vector<value>& input) {
 
-	// If the input is larger than this forest instance then it can use a random sample from the input 
-	int setSize = Crand::rand_int(0, int(input.size() - numIndiv));
+	// Populate an rtree with the sample data
+	RTREE sampleTree;
+	for (auto& element : input)
+		sampleTree.insert(element);
+	// Find the bounds of the sample forest
+	box sampleBox = sampleTree.bounds(); // returns the box that can contain all the elements in the sample Tree 
+	double maxX = sampleBox.max_corner().get<0>(); 
+	double maxY = sampleBox.max_corner().get<1>();
 
-	for (int i = setSize; i < numIndiv + setSize; i++)
-		tree.insert(input[i]); // This would be interesting to see how this works :/ because of the R tree not being linear
+	float xOffset; // Declare an offset of where to sample
+	float yOffset;
+
+	try {
+		xOffset = Crand::randFloat(0, maxX - bounds);
+		yOffset = Crand::randFloat(0, maxY - bounds);
+	}
+	catch (...){
+		LOG_ERROR("input size too big to build from sample");
+	}
+
+	// Find a box within the sample which to sample from 
+	box boundingBox(point(xOffset, yOffset), point(xOffset + bounds, yOffset + bounds)); // A box randomly chosen from the larger box within the r tree 
+
+	std::vector<value> sampleResults;
+
+	sampleTree.query(
+		bgi::within(boundingBox), // Stating the logic of the funtion
+		std::back_inserter(sampleResults)); // Adding true values to the results vector 
+
+	
+	for (auto& element : sampleResults) {
+		// Alter the samples x and y coords to match this forest
+		element.first.set<0>(element.first.get<0>() - xOffset);
+		element.first.set<1>(element.first.get<1>() - yOffset);
+
+		tree.insert(element); // Fixed that 
+	}
+
+
+	// Check 
+	box boundCheck = tree.bounds();
+	point minCorner = boundCheck.min_corner();
+	point maxCorner = boundCheck.max_corner();
+
+	LOG_DEBUG("Bounding area: x{} , x{}, y{}, y{}", minCorner.get<0>(), maxCorner.get<0>(), minCorner.get<1>(), maxCorner.get<1>());
+
+	// Not always even distributiuon, so just an easy workaround 
+
+	if (sampleResults.size() != numIndiv) {
+		LOG_WARN("Non equal population sizes: sample results - {} Desired size - {} ", sampleResults.size(), numIndiv);
+		while (tree.size() > numIndiv) {
+			tree.remove(randomTree());
+			LOG_TRACE("Removing tree");
+		}
+		while (tree.size() < numIndiv) {
+			tree.insert(randomTree());
+			LOG_TRACE("Adding tree");
+		}
+	}
 
 };
 

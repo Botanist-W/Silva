@@ -85,11 +85,22 @@ void Simulation::buildSpLib() {
 
 void Simulation::setImmigration() {
 
+	int sumOfNodes = 0;
+		
+	for (const auto& vec : mParams.nodeMap) {
+		// Sum the values of the inner vector and add to the total sum
+		sumOfNodes += std::accumulate(vec.begin(), vec.end(), 0);
+	}
+
 
 	if (mForests.size() < 2)
 	{
 		immigration = std::make_unique<metaImmigration>(mParams);
 		immigration->buildMetaCom(spLibrary);
+	}
+	else if(mParams.m == 0 || sumOfNodes == 0) {
+
+		immigration = std::make_unique<noImmigration>(mParams);
 	}
 	else
 		immigration = std::make_unique<networkImmigration>(mParams);
@@ -109,23 +120,23 @@ void Simulation::runModel() {
 	results.reserve(((sizeSum * sizeSum) / mForests.size()) * mParams.timeSteps);
 
 
-	for (int capture = 0; capture < captures; capture++) {
+	for (size_t capture = 0; capture < captures; capture++) {
 
 		LOG_TRACE("Capture: {}", capture);
 
 		// TODO: set up a loop in which a capture occurs 
 		auto start = std::chrono::high_resolution_clock::now();
 
-		for (int step = 0; step < mParams.captureRate; step++) { // using int becuase I aint changing things
+		for (size_t step = 0; step < mParams.captureRate; step++) { // using int becuase I aint changing things
 
 			LOG_TRACE("time step: {}", timeStep);
 
-			immigration->handleImmigration(step, mForests);
+			immigration->handleImmigration(mForests);
 
-			for (int forest = 0; forest < mForests.size(); forest++) { // using int for the ID in m Occurence 
+			for (size_t forest = 0; forest < mForests.size(); forest++) { // using int for the ID in m Occurence 
 
 				
-				if (immigration->mOccurence(forest, step) == false) {
+				if (immigration->mOccurence(forest) == false) {
 
 					mForests[forest]->localStep(); // TODO: pass in timestep here << SHOULD BE USING A MAP OMG
 					/// Multithreading is slower for this bit which is a piss take :/

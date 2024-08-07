@@ -46,23 +46,49 @@ void rTree::removeTree(value remove) {
     removedSp = remove.second.species;
 };
 
-
-// OOPS! I'll let you figue out what's wrong with this 
-
+/*
 value rTree::randomTree() {
 
-    point point_rng = point(Crand::randFloat(0, bounds), Crand::randFloat(0, bounds));
+   // point point_rng = ;
 
     value result;
-    tree.query(bgi::nearest(point_rng, 1), &result); ////// HERE@S THE PROBLEM!!!!!!!
+    tree.query(bgi::nearest(point(Crand::randFloat(0, bounds), Crand::randFloat(0, bounds)), 1), &result); ////// HERE'S THE PROBLEM!!!!!!! MAYBE
     return result;
 
 };
+*/
 
+// Final attempt 
 
+value rTree::randomTree(){
 
+    float boxSize = 20;
+
+    std::vector<value> results; // Learing new shizzle 
+
+    while (results.empty()) {
+
+        float minX = Crand::randFloat(0, bounds - boxSize);
+        float minY = Crand::randFloat(0, bounds - boxSize);
+
+        box randBox = box(point(minX, minY), point(minX + 20, minY + 20));
+
+        tree.query(
+            bgi::within(randBox), std::back_inserter(results));
+
+        boxSize += 5; // No point in a check, takes more time
+
+    }
+
+    int index = Crand::rand_int(0, results.size() - 1);
+
+    return results[index];
+
+}
+
+//
 //value rTree::randomTree() {
-  //  return *std::next(tree.begin(), Crand::rand_int(0, tree.size() - 1));
+//    return *std::next(tree.begin(), Crand::rand_int(0, tree.size() - 1));
 //};
 
 std::vector<value> rTree::getValues() { // I know this is slow but I forgot how to do it propely 
