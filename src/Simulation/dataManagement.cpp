@@ -74,12 +74,16 @@ void data::setSampleDirectory(params& par, const std::string& path) {
     LOG_INFO("Loaded sample directory");
 }
 
-std::vector<value> data::getSample(const std::string& directory, double bounds) {
+
+
+std::vector<value> data::getSample(const std::string& directory, double bounds, int repeat) {
     std::ostringstream oss;
     LOG_DEBUG("loading smaple");
     int sampleIndex = Crand::rand_int(1, 1); //TODO: ADJUST
 
-    oss << directory << "/sample_1.csv";
+ 
+
+    oss << directory << "/sample_" << repeat +1<< ".csv";
     std::string filename = oss.str();
 
     std::vector<value> result; // TODO: implement x and y with bg::box 
@@ -105,6 +109,7 @@ std::vector<value> data::getSample(const std::string& directory, double bounds) 
     catch (const io::error::header_missing& e) {
         LOG_ERROR("Header missing in file: {}", e.what());
     }
+
 
     LOG_DEBUG("Build from sample size of result: {}", result.size());
     return result;

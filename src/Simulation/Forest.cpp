@@ -30,6 +30,8 @@ void Forest::setParams() { // TODO: stop doing this
 	b1 = mParams.b1;
 	b2 = mParams.b2;
 	timeSteps = mParams.timeSteps;
+	HNDD = mParams.HNDD;
+	CNDD = mParams.CNDD;
 
 	LOG_TRACE("search area {}", searchArea);
 	LOG_TRACE("bounds {}", bounds);
@@ -188,12 +190,14 @@ void Forest::buildFromForest(std::vector<value>& input) {
 	double xOffset; // Declare an offset of where to sample
 	double yOffset;
 
-	try {
+	if(maxX > bounds && maxY > bounds){
 		xOffset = Crand::rand_double(0, maxX - bounds);
 		yOffset = Crand::rand_double(0, maxY - bounds);
 	}
-	catch (...){
-		LOG_ERROR("input size too big to build from sample");
+	else{
+		LOG_WARN("input size too big to build from sample");
+		xOffset = 0;
+		yOffset = 0;
 	}
 
 	// Find a box within the sample which to sample from 

@@ -27,7 +27,7 @@ public:
 
 	void setSampleDirectory(params& par, const std::string& );
 
-	static std::vector<value> getSample(const std::string& directory, double bounds);
+	static std::vector<value> getSample(const std::string& directory, double bounds, int repeat);
 
 private:
 
@@ -43,6 +43,7 @@ private:
 	std::string spCountOutFile = "";
 
 	int mCounter; // Keeps track of which line we on 
+
 };
 
 

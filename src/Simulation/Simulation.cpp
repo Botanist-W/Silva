@@ -40,7 +40,7 @@ void Simulation::build() {
 			
 			int sample = Crand::rand_int(0, 10); // Planning of having 10 samples
 
-			std::vector<value> samples = data::getSample(mParams.sampleDirectory, mParams.fragmentSizeList[i]);
+			std::vector<value> samples = data::getSample(mParams.sampleDirectory, mParams.fragmentSizeList[i], repeat);
 
 			mForests[i]->buildFromForest(samples);
 			mForests[i]->initCounter();
