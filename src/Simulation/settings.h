@@ -20,7 +20,7 @@ struct params { //
     bool buildFromSample = false;
 
     int numSpecies = 300; // number of species  
-    double treeDensity = 0.04; // Number of trees per area or lambda for pois()
+    double treeDensity = 0.014888; // Number of trees per area or lambda for pois()
 
     // Immigration settings
     bool metaCommunityImmigration = false;
@@ -38,8 +38,8 @@ struct params { //
     bool neutralComp = true;
 
     double searchArea = 20; // ZOI
-    double b1 = 6;
-    double b2 = 7;
+    double b1 = 7;
+    double b2 = 6;
     double m = 0.001; // Immigration rate
     double dispersalDis = 20;
     double mort = 0.1; // mortality rate TODO : implement or remove 

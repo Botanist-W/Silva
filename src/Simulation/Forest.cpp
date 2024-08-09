@@ -89,10 +89,8 @@ void Forest::localStep() {
 
 		double pNCI = 1 / (1 + NCI);
 
-		if (attempt >= 100) {
-			LOG_ERROR("MAX ATTEMPTS REACHED, pNCI: {}, Species: {}", pNCI, parent.second.species);
-
-			LOG_INFO("size of R tree: {}", tree.size());
+		if (attempt >= 1000) {
+			LOG_ERROR("MAX ATTEMPTS REACHED (1000), pNCI: {}, Species: {}", pNCI, parent.second.species);
 
 			LOG_INFO("Parent position: {}, {}", parent.first.get<0>(), parent.first.get<1>());
 			addTree(randomTree());

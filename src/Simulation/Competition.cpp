@@ -4,7 +4,9 @@
 // 
 inline double competition::densityKernel(point& recruit, point& neighbour, double& c) { 
 	// This is modelled off of Kalyuzky et al 2023 
+	
 	return c/(1 + pow((bg::distance(recruit, neighbour) / mForest.b1), mForest.b2));
+
 };
 
 // TODO: implement interspecific variation in CNDD and HNDD!!
