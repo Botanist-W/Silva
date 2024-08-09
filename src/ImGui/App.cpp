@@ -108,7 +108,7 @@ void App::DrawFragments() {
         // Draw the input box for fragment size
         ImGui::SetCursorScreenPos(ImVec2(pos.x + 10, pos.y + 30));
         ImGui::PushItemWidth(fragSize - 20);
-        ImGui::InputFloat(("##size" + std::to_string(i)).c_str(), &par.fragmentSizeList[i]);
+        ImGui::InputDouble(("##size" + std::to_string(i)).c_str(), &par.fragmentSizeList[i]);
         ImGui::PopItemWidth();
 
         // Make the square draggable
@@ -151,13 +151,13 @@ void App::Menu() {
 
     im::SeparatorText("Ecological settings");
     ImGui::PushItemWidth(menuWidth/5);
-    im::InputFloat("Immigration rate: ", &par.m);
-    im::InputFloat("Strength of HNDD: ", &par.HNDD);
-    im::InputFloat("Strength of CNDD: ", &par.CNDD);
-    im::InputFloat("Dispersal distance: ", &par.dispersalDis);
-    im::InputFloat("Zone of influence radius: ", &par.searchArea);
-    im::InputFloat("b1: ", &par.b1);
-    im::InputFloat("b2: ", &par.b2);
+    im::InputDouble("Immigration rate: ", &par.m);
+    im::InputDouble("Strength of HNDD: ", &par.HNDD);
+    im::InputDouble("Strength of CNDD: ", &par.CNDD);
+    im::InputDouble("Dispersal distance: ", &par.dispersalDis);
+    im::InputDouble("Zone of influence radius: ", &par.searchArea);
+    im::InputDouble("b1: ", &par.b1);
+    im::InputDouble("b2: ", &par.b2);
     ImGui::PopItemWidth();
 
     im::SeparatorText("Fragment settings");
@@ -175,7 +175,7 @@ void App::Menu() {
                 if (im::CollapsingHeader("Set fragment sizes")) {
                     for (int i = 0; i < par.numFragments; i++) {
                         std::string label = "Fragment " + std::to_string(i) + ": ";
-                        ImGui::InputFloat(label.c_str(), &par.fragmentSizeList[i]);
+                        ImGui::InputDouble(label.c_str(), &par.fragmentSizeList[i]);
 
                     }
                 }
@@ -183,13 +183,13 @@ void App::Menu() {
             }
             else {
                 ImGui::PushItemWidth(menuWidth / 4);
-                im::InputFloat("Input Size", &par.size);
+                im::InputDouble("Input Size", &par.size);
                 ImGui::PopItemWidth(); 
             }
         }
         else {
             
-            im::InputFloat("Input size: ", &par.size);
+            im::InputDouble("Input size: ", &par.size);
 
         }
     
@@ -213,7 +213,7 @@ void App::Menu() {
                                 }
                                 else if (row > col) {
                                     // get lower stuff
-                                    if (ImGui::InputFloat(ss.str().c_str(), &par.nodeMap[row][col])) {
+                                    if (ImGui::InputDouble(ss.str().c_str(), &par.nodeMap[row][col])) {
                                         // Reflecty stuff
                                         par.nodeMap[col][row] = par.nodeMap[row][col];
                                     }
@@ -251,7 +251,7 @@ void App::Menu() {
                             }
                             else if (row > col) {
                                 
-                                if (ImGui::InputFloat(ss.str().c_str(), &par.nodeMap[row][col])) {
+                                if (ImGui::InputDouble(ss.str().c_str(), &par.nodeMap[row][col])) {
                                     // To the top, make it drop
                                     par.nodeMap[col][row] = par.nodeMap[row][col];
                                 }
@@ -272,7 +272,7 @@ void App::Menu() {
         }
     }
     else {
-        im::InputFloat("Input Forest size: ", &par.size);
+        im::InputDouble("Input Forest size: ", &par.size);
 
         im::InputInt("Metacommunity size: ", &par.metaComSize);
      
@@ -428,7 +428,7 @@ void App::cleanup() {
 int App::setup() {
 
     fragmentPosCache = std::vector<bool>(par.numFragments, false);
-    par.fragmentSizeList = std::vector<float>(par.numFragments, par.size);
+    par.fragmentSizeList = std::vector<double>(par.numFragments, par.size);
 
     glfwSetErrorCallback(glfw_error_callback);
     if (!glfwInit())

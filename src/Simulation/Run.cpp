@@ -2,6 +2,7 @@
 #include "pch.h"
 
 
+
 Run::Run() {
 	
 	init(); // WARNING: Can run everthing 
@@ -50,6 +51,8 @@ void Run::runSimulation() {
 		LOG_DEBUG("Created forest: {}", i);
 	}
 
+
+	
 	// Run 
 	// TODO: set up a loop in which a capture occurs 
 	auto start = std::chrono::high_resolution_clock::now();
@@ -86,6 +89,14 @@ void Run::runRepeats() {
 
 };
 
+void Run::runBasic() {
+
+	for (auto& sim : mRepeats) {
+
+		sim->runModel();
+
+	}
+}
 
 void Run::noGUI() {
 	std::string input;

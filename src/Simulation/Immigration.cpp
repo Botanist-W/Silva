@@ -23,7 +23,7 @@ void metaImmigration::handleImmigration(std::vector<std::shared_ptr<Forest>> for
     for (size_t i = 0; i < forests.size(); i++) {
         if (mDist(gen)) {
             forests[i]->removeTree(forests[i]->randomTree());
-            forests[i]->addTree(value(point(Crand::randFloat(0, forests[i]->bounds), Crand::randFloat(0, forests[i]->bounds)), metaCom[Crand::rand_int(0, int(metaCom.size() - 1))]));
+            forests[i]->addTree(value(point(Crand::rand_double(0, forests[i]->bounds), Crand::rand_double(0, forests[i]->bounds)), metaCom[Crand::rand_int(0, int(metaCom.size() - 1))]));
             doesImmigrationOccur = true;
             LOG_TRACE("Immigration has Occured");
         }
@@ -91,7 +91,7 @@ bool networkImmigration::mOccurence(size_t ID) {
 // No immigration
 
 noImmigration::noImmigration(params& _params) : Immigration(_params) {
-    LOG_DEBUG("No immigration here");
+    LOG_INFO("No immigration here");
 
 };
 

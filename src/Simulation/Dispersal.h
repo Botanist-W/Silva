@@ -18,7 +18,7 @@ public:
 
 	virtual bool inBounds(point&) = 0;
 
-	virtual std::vector<value> search(point&, float&) = 0;
+	virtual std::vector<value> search(point&, double&) = 0;
 
 	virtual ~dispersal() = default;
 
@@ -39,11 +39,13 @@ class continuousDisp :
 public:
 
 	continuousDisp(Forest& _forest) :
-		dispersal(_forest) {};
+		dispersal(_forest) {
+		LOG_INFO("Continuous Dispersal");
+	};
 
 	point disperse(value& parent) override;
 
-	std::vector<value> search(point&, float&) override;
+	std::vector<value> search(point&, double&) override;
 
 	bool inBounds(point&) override;
 
@@ -70,7 +72,7 @@ public:
 
 	point disperse(value& parent) override;
 
-	std::vector<value> search(point&, float&) override;
+	std::vector<value> search(point&, double&) override;
 
 	bool inBounds(point&);
 

@@ -7,6 +7,7 @@
 #include <thread>
 #include <chrono>
 #include "dataManagement.h"
+#include "timer.h"
 
 #ifndef SIMULATION
 #define SIMULATION
@@ -44,8 +45,9 @@ private:
 
 	std::unique_ptr<Immigration> immigration; // Immigration type
 
-	std::vector<indiv> spLibrary;
+	std::unique_ptr<baseTimer> mTimer;
 
+	std::vector<indiv> spLibrary;
 
 	const int repeat;
 
@@ -56,4 +58,10 @@ private:
 };
 
 
-#endif // !SIM
+
+
+
+
+
+
+#endif

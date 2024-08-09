@@ -75,7 +75,7 @@ public:
 
 private:
     std::map<size_t, bool> mOccurrenceMap;
-    std::vector<std::vector<float>> nodeWeights;
+    std::vector<std::vector<double>> nodeWeights;
     std::mt19937 gen; // I wanted to keep random number generation together but this is actually way better but it's too late now 
 
 

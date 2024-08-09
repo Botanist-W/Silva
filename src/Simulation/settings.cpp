@@ -37,8 +37,8 @@ void settings::generateDirectory() {
         << "/Settings_"
         << "nf" << mParams.numFragments << "_"
         << "m" << mParams.m << "_"
-        << "sp" << mParams.numSpecies << "_"
-        << "td" << mParams.treeDensity << "_"
+        << "hndd" << mParams.HNDD << "_"
+        << "cndd" << mParams.CNDD << "_"
         << "t" << mParams.timeSteps;
 
     std::filesystem::create_directories(oss.str());
@@ -48,6 +48,8 @@ void settings::generateDirectory() {
     //LOG_INFO("File directory: {}", settingsDirectory);
 
 }
+
+
 
 // Parameters
 void settings::saveParams() {
@@ -228,11 +230,11 @@ void settings::loadNodeMap() { // TODO : use csv.h
     while (std::getline(file, line)) {
         std::stringstream ss(line);
         std::string value;
-        std::vector<float> row;
+        std::vector<double> row;
 
         while (std::getline(ss, value, ',')) {
 
-            row.push_back(std::stof(value)); // FLOAT == unbalanced immigration 
+            row.push_back(std::stof(value)); // double == unbalanced immigration 
 
         }
         mParams.nodeMap.push_back(row);
@@ -270,7 +272,7 @@ void settings::loadSizeList() {
     try {
         io::CSVReader<2> in(file);
         int fragment;
-        float size;
+        double size;
 
         while (in.read_row(fragment, size)) {
             

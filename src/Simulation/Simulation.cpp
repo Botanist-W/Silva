@@ -5,6 +5,12 @@
 Simulation::Simulation(const params& _params, const int& _repeat) :
 	mParams(_params), repeat(_repeat) {
 	setup();
+
+	if (repeat == 0)
+		mTimer = std::make_unique<activeTimer>();
+	else
+		mTimer = std::make_unique<nullTimer>();
+
 }
 
 
@@ -64,6 +70,7 @@ void Simulation::build() {
 
 // TODO: REMOVE!
 void Simulation::buildSpLib() {
+	double a = mParams.dispersalDis * sqrt(1 / Pi);
 
 	for (int i = 0; i <= mParams.numSpecies; i++) {
 
@@ -71,7 +78,7 @@ void Simulation::buildSpLib() {
 
 		sp.species = i;
 
-		sp.dispersal = 11.2837; // TODO: DO THIS BETTER 
+		sp.dispersal = a; // TODO: DO THIS BETTER 
 
 		sp.CNDD = 0;
 
@@ -109,7 +116,7 @@ void Simulation::setImmigration() {
 };
 
 void Simulation::runModel() {
-
+	//logParams(mParams);
 	LOG_DEBUG("Getting to thr first loop?");
 
 	int captures = mParams.timeSteps / mParams.captureRate;
@@ -117,7 +124,7 @@ void Simulation::runModel() {
 	int timeStep = 0;
 
 	int sizeSum = std::accumulate(mParams.fragmentSizeList.begin(), mParams.fragmentSizeList.begin(), 0);
-	results.reserve(((sizeSum * sizeSum) / mForests.size()) * mParams.timeSteps);
+	results.reserve(((sizeSum * sizeSum) / mForests.size()) * captures);
 
 
 	for (size_t capture = 0; capture < captures; capture++) {
@@ -130,6 +137,7 @@ void Simulation::runModel() {
 		for (size_t step = 0; step < mParams.captureRate; step++) { // using int becuase I aint changing things
 
 			LOG_TRACE("time step: {}", timeStep);
+			
 
 			immigration->handleImmigration(mForests);
 
@@ -147,7 +155,7 @@ void Simulation::runModel() {
 			}
 
 			timeStep++;
-		
+			mTimer->logger(timeStep);
 		}  // Step  (in between capture)
 
 		auto end = std::chrono::high_resolution_clock::now();
@@ -191,3 +199,14 @@ std::vector<observation>& Simulation::getResults() {
 std::vector<std::tuple<int, int, int, int>>& Simulation::getSpCount() {
 	return spCountResults;
 };
+
+
+
+
+
+
+
+
+
+
+

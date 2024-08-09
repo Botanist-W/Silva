@@ -15,8 +15,8 @@ void data::setCaptureName(params& par) {
     oss << outputDirectory << "/Result_"
         << "nf" << par.numFragments << "_"
         << "m" << par.m << "_"
-        << "sp" << par.numSpecies << "_"
-        << "td" << par.treeDensity << "_"
+        << "hndd" << par.HNDD << "_"
+        << "cndd" << par.CNDD << "_"
         << "t" << par.timeSteps << ".csv";
     outputFile = oss.str();
 
@@ -74,7 +74,7 @@ void data::setSampleDirectory(params& par, const std::string& path) {
     LOG_INFO("Loaded sample directory");
 }
 
-std::vector<value> data::getSample(const std::string& directory, float bounds) {
+std::vector<value> data::getSample(const std::string& directory, double bounds) {
     std::ostringstream oss;
     LOG_DEBUG("loading smaple");
     int sampleIndex = Crand::rand_int(1, 1); //TODO: ADJUST
@@ -87,9 +87,9 @@ std::vector<value> data::getSample(const std::string& directory, float bounds) {
         io::CSVReader<7> in(filename);
         in.read_header(io::ignore_extra_column, "uniqueID", "species", "x", "y", "dispersal", "HNDD", "CNDD");
 
-        float x, y;
+        double x, y;
         int uniqueID, species;
-        float dispersal, HNDD, CNDD;
+        double dispersal, HNDD, CNDD;
 
         while (in.read_row(uniqueID, species, x, y, dispersal, HNDD, CNDD)) {
             point p(x, y);

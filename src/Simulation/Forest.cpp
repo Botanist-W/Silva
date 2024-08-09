@@ -42,7 +42,6 @@ void Forest::initCounter() {
 };
 
 
-// Step after immigration has been decided in the 
 void Forest::localStep() {
 
 	// Remove a random tree
@@ -51,9 +50,12 @@ void Forest::localStep() {
 	removeTree(rmTree); // Where should this go << who really cares?
 
 	searchResults.clear(); // just being nice and safe 
+	int attempt = 0;
 
 	while (true) { // Successful competition?
+		attempt++;
 
+		
 		// Get random parent
 		value parent = randomTree();
 
@@ -74,7 +76,7 @@ void Forest::localStep() {
 		LOG_TRACE("Recruit position: ({}, {})", recPos.get<0>(), recPos.get<1>());
 		LOG_TRACE("Number of search results: {}", searchResults.size());
 
-		float NCI = 0;
+		double NCI = 0;
 
 		if(searchResults.size() < 2){	
 			LOG_TRACE("No trees in surrounding area, assured recruitment");
@@ -83,12 +85,25 @@ void Forest::localStep() {
 			NCI = comp->compIndex(searchResults, parent, recPos); // Main TODO: Figure out how this works 
 		}
 
-		float pNCI = 1 / (1 + NCI);
+		double pNCI = 1 / (1 + NCI);
+
+		if (attempt >= 100) {
+			LOG_ERROR("MAX ATTEMPTS REACHED, pNCI: {}, Species: {}", pNCI, parent.second.species);
+
+			LOG_INFO("size of R tree: {}", tree.size());
+
+			LOG_INFO("Parent position: {}, {}", parent.first.get<0>(), parent.first.get<1>());
+			addTree(randomTree());
+			break;
+		}
 
 		LOG_TRACE ("Probability of success: {} ", pNCI);
 
+		if (tree.empty())
+			LOG_ERROR("NO Trees!!!!");
+
 		// Main check for whether recruitment was successfull 
-		if (pNCI > Crand::randFloat(0,1)) { // Can alter this later ://
+		if (pNCI > Crand::rand_double(0,1)) { // Can alter this later ://
 			LOG_TRACE("Recruitment SUCCESS");
 			addTree(value(recPos, parent.second));
 			break;
@@ -128,7 +143,7 @@ void Forest::localExtinction(int& extSp, std::vector<indiv>& spLib) {
 				}
 			}
 
-			tree.insert(value(point(Crand::randFloat(0, bounds), Crand::randFloat(0, bounds)), newID)); //replacing with some random indiv in the 
+			tree.insert(value(point(Crand::rand_double(0, bounds), Crand::rand_double(0, bounds)), newID)); //replacing with some random indiv in the 
 
 		}
 
@@ -147,7 +162,7 @@ std::vector<observation> Forest::getCapture(int repeat, int timeStep) {
 
 	for (const auto& element : tree)
 		// Repeat, Forest, timestep, ID, Sp, x, y
-		capture.emplace_back(repeat, forestID, timeStep, int(element.second.uniqueID), int(element.second.species), float(element.first.get<0>()), float(element.first.get<1>())); // I hope this ends up emplacing in the right place
+		capture.emplace_back(repeat, forestID, timeStep, int(element.second.uniqueID), int(element.second.species), double(element.first.get<0>()), double(element.first.get<1>())); // I hope this ends up emplacing in the right place
 
 	LOG_DEBUG("Size of forest {} captures: {}", forestID, capture.size());
 
@@ -170,12 +185,12 @@ void Forest::buildFromForest(std::vector<value>& input) {
 	double maxX = sampleBox.max_corner().get<0>(); 
 	double maxY = sampleBox.max_corner().get<1>();
 
-	float xOffset; // Declare an offset of where to sample
-	float yOffset;
+	double xOffset; // Declare an offset of where to sample
+	double yOffset;
 
 	try {
-		xOffset = Crand::randFloat(0, maxX - bounds);
-		yOffset = Crand::randFloat(0, maxY - bounds);
+		xOffset = Crand::rand_double(0, maxX - bounds);
+		yOffset = Crand::rand_double(0, maxY - bounds);
 	}
 	catch (...){
 		LOG_ERROR("input size too big to build from sample");

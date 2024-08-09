@@ -21,7 +21,7 @@ protected:
 
 	Forest& mForest;
 
-	double densityKernel(point& recruit, point& neighbour, float& c);
+	double densityKernel(point& recruit, point& neighbour, double& c);
 
 	friend class neutralComp;
 	friend class cnddComp;
