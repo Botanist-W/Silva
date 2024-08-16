@@ -22,7 +22,7 @@ void Run::init() {
 	//std::cin >> gui;
 	//if (gui == 'y') {
 		//LOG_INFO("Using gui: ");
-		mApplication = std::make_unique<App>(mSettings, mData); // Is this best way to manage the settings/data?????
+		//mApplication = std::make_unique<App>(mSettings, mData); // Is this best way to manage the settings/data?????
 	//}
 	//else {
 		//LOG_INFO("No gui: ");
@@ -34,13 +34,28 @@ void Run::init() {
 void Run::runSimulation() {
 
 	// Move the while loop to here
-	while (true) {
-		if(!mApplication->Run())
-			break;
-	} 
+	//while (true) {
+		//if(!mApplication->Run())
+			//break;
+	//} 
 
+	std::string paramDir = "Params";
+
+	mSettings.load(paramDir);
 	// Get params
 	mParams = mSettings.get();
+
+
+	LOG_INFO("timeSteps: {}", mParams.timeSteps);
+	LOG_INFO("captureRate: {}", mParams.captureRate);
+	LOG_INFO("treeDensity: {}", mParams.treeDensity);
+	LOG_INFO("fragmentSize: {}", mParams.fragmentSizeList[0]);
+	LOG_INFO("m: {}", mParams.m);
+	LOG_INFO("HNDD: {}", mParams.HNDD);
+	LOG_INFO("CNDD: {}", mParams.CNDD);
+
+
+	mData.setName(mParams);
 
 	if (mParams.sampleDirectory != "")
 		mParams.buildFromSample = true;

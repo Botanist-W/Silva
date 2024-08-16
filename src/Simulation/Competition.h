@@ -33,7 +33,7 @@ public:
 
 	neutralComp(Forest& _forest) :
 		competition(_forest) {
-		
+		LOG_INFO("Neutral Competition");
 
 	};
 
@@ -51,6 +51,7 @@ public:
 	cnddComp(Forest& _forest) :
 		competition(_forest) {
 
+		LOG_INFO(" CNDD invloved ");
 
 	};
 

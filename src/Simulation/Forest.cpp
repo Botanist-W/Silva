@@ -57,7 +57,7 @@ void Forest::localStep() {
 	while (true) { // Successful competition?
 		attempt++;
 
-		
+
 		// Get random parent
 		value parent = randomTree();
 
@@ -68,10 +68,10 @@ void Forest::localStep() {
 		// OR
 		// I could be lazy :)
 		if (disp->inBounds(recPos) == false) {
-			LOG_TRACE ("Dispersal out of bounds");
+			LOG_TRACE("Dispersal out of bounds");
 			continue; // Restart dispersal if not in bounds 
 		}
-		
+
 		searchResults = search(recPos, searchArea);
 
 		//LOG_TRACE("Parent position: ({}, {})", parent.first.get<0>(), parent.first.get<1>());
@@ -80,7 +80,7 @@ void Forest::localStep() {
 
 		double NCI = 0;
 
-		if(searchResults.size() < 2){	
+		if (searchResults.size() < 2) {
 			LOG_TRACE("No trees in surrounding area, assured recruitment");
 		}
 		else {
@@ -97,17 +97,17 @@ void Forest::localStep() {
 			break;
 		}
 
-		LOG_TRACE ("Probability of success: {} ", pNCI);
+		LOG_TRACE("Probability of success: {} ", pNCI);
 
 		if (tree.empty())
 			LOG_ERROR("NO Trees!!!!");
 
 		// Main check for whether recruitment was successfull 
-		if (pNCI > Crand::rand_double(0,1)) { // Can alter this later ://
+		if (pNCI > Crand::rand_double(0, 1)) { // Can alter this later ://
 			LOG_TRACE("Recruitment SUCCESS");
 			addTree(value(recPos, parent.second));
 			break;
-		} 
+		}
 		else
 		{
 			LOG_TRACE("Recruitment FAIL");
@@ -118,7 +118,6 @@ void Forest::localStep() {
 	}
 
 };
-
 
 // TODO: Go back in time and be more prepared for your deadline 
 void Forest::localExtinction(int& extSp, std::vector<indiv>& spLib) {
@@ -241,9 +240,11 @@ void Forest::buildFromForest(std::vector<value>& input) {
 };
 
 
-void Forest::counter(int repeat, int timeStep) {
-
-	mCounter->countMod(removedSp, addedSp, timeStep, forestID, repeat);
+void Forest::counter(int repeat, int timeStep, bool active) {
+	if(active)
+		mCounter->countMod(removedSp, addedSp, timeStep, forestID, repeat);
+	else
+		mCounter->countMod(1000, 1000, timeStep, forestID, repeat);
 
 }
 

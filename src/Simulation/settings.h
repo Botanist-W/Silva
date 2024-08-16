@@ -48,7 +48,7 @@ struct params { //
     double extinctionRate = 0.0001;
 
 
-    std::string sampleDirectory = "";
+    std::string sampleDirectory = "../../Samples";
 
 };
 
@@ -58,8 +58,8 @@ public:
 
     settings() {};
 
-    std::string settingsPath = "data/defaults"; // Only used by the generate directory method
-    std::string settingsDirectory = "data/defaults"; // TODO: be able to iterate settings
+    std::string settingsPath = ""; // Only used by the generate directory method
+    std::string settingsDirectory = "/Params"; // TODO: be able to iterate settings
 
     void generateDirectory(); // Generates the folder name where the files will hopefully be 
 
@@ -84,6 +84,8 @@ private:
     params mParams;
 
     void ResizeMatrix(int newSize);
+
+    void logger();
 };
 
 #endif // !SPACE_SETTINGS

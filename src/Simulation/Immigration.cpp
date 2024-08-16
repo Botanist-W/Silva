@@ -57,24 +57,26 @@ networkImmigration::networkImmigration(params& _params) : Immigration(_params), 
 
 
 void networkImmigration::handleImmigration(std::vector<std::shared_ptr<Forest>> forests) {
-    for (size_t i = 0; i < forests.size(); i++) {
-        if (mDist(gen)) { // Does immigration occur?
+    
+    auto i = Crand::rand_int(0, forests.size() - 1);// Choosing a random forest 
 
-            mOccurrenceMap[i] = true;
+    if (mDist(gen)) { // Does immigration occur?
 
-            forests[i]->removeTree(forests[i]->randomTree());
+        mOccurrenceMap[i] = true;
 
-            std::discrete_distribution<int> dist(nodeWeights[i].begin(), nodeWeights[i].end());
-            int targetForestIndex = dist(gen);
+        forests[i]->removeTree(forests[i]->randomTree());
 
-            forests[i]->addTree(forests[targetForestIndex]->randomTree());
+        std::discrete_distribution<int> dist(nodeWeights[i].begin(), nodeWeights[i].end());
+        int targetForestIndex = dist(gen); // Selecting random tree for immigrant to come from 
 
-            LOG_TRACE("Immigration occurred from fragment: {} to {}", i, targetForestIndex);
-        }
-        else {
-            mOccurrenceMap[i] = false;
-        }
+        forests[i]->addTree(forests[targetForestIndex]->randomTree());
+
+        LOG_TRACE("Immigration occurred from fragment: {} to {}", i, targetForestIndex);
     }
+    else {
+        mOccurrenceMap[i] = false;
+    }
+    
 }
 
 

@@ -47,7 +47,7 @@ public:
 	
 	std::vector<observation> getCapture(int repeat, int timeStep); 
 
-	void counter(int repeat, int timeStep);
+	void counter(int repeat, int timeStep, bool active);
 
 	std::vector<std::tuple<int, int, int, int>> getSpCount();
 
@@ -67,7 +67,29 @@ private:
 	// These search results are constantly used so keep on stack or something, idk
 	std::vector<value> searchResults;
 
+	friend class metaForest;
 };
+
+
+
+// You can only make this work if you actually intergrate the R tree and the forest class then make a base class for these two. Then from this you still have a lot of work to do.
+// TODO: do this ... 
+
+class metaForest : public Forest {
+public:
+	metaForest(const params& _params, const int& _ID) : Forest(_params, _ID);
+
+
+	
+
+
+
+
+
+
+
+};
+
 
 
 

@@ -27,18 +27,20 @@ public:
 
 	void setSampleDirectory(params& par, const std::string& );
 
-	static std::vector<value> getSample(const std::string& directory, double bounds, int repeat);
+	static std::vector<value> getSample(const std::string& directory, double bounds, int repeat, int sampleIndex);
+
+	static int getFileCount(const std::string& directory);
 
 private:
 
 	void setCaptureName(params& par);
 	void setCountName(params& par);
 
-	std::string sampleDirectory = "data/sampleForests";
+	std::string sampleDirectory = "../../Samples";
 
-	std::string outputDirectory = "data/Output/";
+	std::string outputDirectory = "../../";
 
-	std::string outputFile = "data/Output/default.csv";
+	std::string outputFile = "";
 
 	std::string spCountOutFile = "";
 
