@@ -170,7 +170,7 @@ void settings::loadParams() { // Super inefficient but just being safe I guess T
             mParams.treeDensity = std::stof(value);
         }
         else if (parameter == "metaCommunityImmigration") {
-            mParams.metaCommunityImmigration = (value == "1");
+            mParams.metaCommunityImmigration = std::stoi(value);
         }
         else if (parameter == "metaComSize") {
             mParams.metaComSize = std::stoi(value);

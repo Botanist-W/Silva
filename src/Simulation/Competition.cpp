@@ -19,7 +19,7 @@ double neutralComp::compIndex(std::vector<value>& searchResults, value& parent, 
 	for (auto& i : searchResults) 
 		cumDensity += densityKernel(i.first, recPos, mForest.HNDD); // Neutral so no worries
 
-	LOG_TRACE("NCI: {}", cumDensity);
+	//LOG_TRACE("NCI: {}", cumDensity);
 
 	return cumDensity;
 
@@ -45,7 +45,7 @@ double cnddComp::compIndex(std::vector<value>& searchResults, value& parent, poi
 			cumDensity += densityKernel(i.first, recPos, mForest.HNDD); 
 	}
 
-	LOG_TRACE("NCI: {}", cumDensity);
+	//LOG_TRACE("NCI: {}", cumDensity);
 
 	return cumDensity;
 

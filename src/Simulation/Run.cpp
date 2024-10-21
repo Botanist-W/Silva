@@ -45,6 +45,20 @@ void Run::runSimulation() {
 	// Get params
 	mParams = mSettings.get();
 
+	char useSample;
+
+	std::cout << "Use samples? \n";
+	std::cin >> useSample;
+
+	if (useSample == 'y')
+	{
+		LOG_INFO("Using samples!");
+	}
+	else
+	{
+		mParams.sampleDirectory = "";
+		LOG_INFO("No samples being used");
+	}
 
 	LOG_INFO("timeSteps: {}", mParams.timeSteps);
 	LOG_INFO("captureRate: {}", mParams.captureRate);

@@ -37,6 +37,8 @@ public:
 		LOG_DEBUG("Forest {} destroyed", forestID);
 	}
 
+	bool doCompetition(const indiv&);
+
 	void localStep(); // Run a step of dispersal and competition, MAKE IT FAST ( Immigration is done first in the simulation class )
 
 	void localExtinction(int&, std::vector<indiv>& spLib); // takes species to remove from the forest and then replaces it with a bunch of random trees :) << WILL BE VERY INTENSIVE
@@ -75,20 +77,7 @@ private:
 // You can only make this work if you actually intergrate the R tree and the forest class then make a base class for these two. Then from this you still have a lot of work to do.
 // TODO: do this ... 
 
-class metaForest : public Forest {
-public:
-	metaForest(const params& _params, const int& _ID) : Forest(_params, _ID);
 
-
-	
-
-
-
-
-
-
-
-};
 
 
 

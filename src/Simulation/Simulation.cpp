@@ -95,26 +95,45 @@ void Simulation::buildSpLib() {
 
 void Simulation::setImmigration() {
 
-	int sumOfNodes = 0;
-		
-	for (const auto& vec : mParams.nodeMap) {
-		// Sum the values of the inner vector and add to the total sum
-		sumOfNodes += std::accumulate(vec.begin(), vec.end(), 0);
-	}
-
-
-	if (mForests.size() < 2)
+	switch (mParams.metaCommunityImmigration)
 	{
-		immigration = std::make_unique<metaImmigration>(mParams);
-		immigration->buildMetaCom(spLibrary);
-	}
-	else if(mParams.m == 0 || sumOfNodes == 0) {
-
+	case 0:
 		immigration = std::make_unique<noImmigration>(mParams);
-	}
-	else
-		immigration = std::make_unique<networkImmigration>(mParams);
+		break;
 
+	case 1:
+		immigration = std::make_unique<metaImmigration>(mParams);
+		break;
+
+	case 2:
+		immigration = std::make_unique<metaImmigrationComp>(mParams);
+		break;
+
+	case 3:
+		immigration = std::make_unique<networkImmigration>(mParams);
+		break;
+
+	case 4:
+		immigration = std::make_unique<networkImmigrationMeta>(mParams);
+		break;
+
+	case 5:
+		immigration = std::make_unique<networkImmigrationComp>(mParams);
+		break;
+
+	case 6:
+		immigration = std::make_unique<networkImmigrationCompMeta>(mParams);
+		break;
+
+
+	default:
+		
+		LOG_ERROR("No immigration is being set");
+
+		break;
+	}
+
+	immigration->buildMetaCom(spLibrary);
 
 };
 

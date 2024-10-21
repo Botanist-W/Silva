@@ -76,7 +76,7 @@ void Forest::localStep() {
 
 		//LOG_TRACE("Parent position: ({}, {})", parent.first.get<0>(), parent.first.get<1>());
 		LOG_TRACE("Recruit position: ({}, {})", recPos.get<0>(), recPos.get<1>());
-		LOG_TRACE("Number of search results: {}", searchResults.size());
+		//LOG_TRACE("Number of search results: {}", searchResults.size());
 
 		double NCI = 0;
 
@@ -152,8 +152,6 @@ void Forest::localExtinction(int& extSp, std::vector<indiv>& spLib) {
 	
 };
 
-
-
 std::vector<observation> Forest::getCapture(int repeat, int timeStep) {
 	
 	std::vector<observation> capture;
@@ -169,10 +167,6 @@ std::vector<observation> Forest::getCapture(int repeat, int timeStep) {
 
 };
 
-
-
-
-// TODO : Implement
 void Forest::buildFromForest(std::vector<value>& input) {
 
 	// Populate an rtree with the sample data
@@ -226,19 +220,18 @@ void Forest::buildFromForest(std::vector<value>& input) {
 	// Not always even distributiuon, so just an easy workaround 
 
 	if (sampleResults.size() != numIndiv) {
-		LOG_WARN("Non equal population sizes: sample results - {} Desired size - {} ", sampleResults.size(), numIndiv);
+		LOG_DEBUG("Non equal population sizes: sample results - {} Desired size - {} ", sampleResults.size(), numIndiv);
 		while (tree.size() > numIndiv) {
 			tree.remove(randomTree());
-			LOG_TRACE("Removing tree");
+			//LOG_TRACE("Removing tree");
 		}
 		while (tree.size() < numIndiv) {
 			tree.insert(randomTree());
-			LOG_TRACE("Adding tree");
+			//LOG_TRACE("Adding tree");
 		}
 	}
 
 };
-
 
 void Forest::counter(int repeat, int timeStep, bool active) {
 	if(active)
@@ -251,3 +244,48 @@ void Forest::counter(int repeat, int timeStep, bool active) {
 std::vector<std::tuple<int, int, int, int>> Forest::getSpCount() {
 	return mCounter->spCountList;
 };
+
+
+// jsut a bastardised local step 
+bool Forest::doCompetition(const indiv& recruit ) {
+	
+	// while loop moved to outside thi method
+
+	searchResults.clear();
+
+	// Random pos for recruit 
+	point recPos = point(Crand::rand_double(0, bounds), Crand::rand_double(0, bounds));
+
+	// search the area
+	searchResults = search(recPos, searchArea);
+
+	double NCI = 0;
+	double pNCI = 0;
+
+	if (searchResults.size() < 2) {
+		LOG_TRACE("No trees in surrounding area, assured recruitment");
+		pNCI = 1;
+	}
+	else {
+		value parent = value(point(0,0), recruit); // Position for parent is irrlevant/ just needed for comp method
+
+		NCI = comp->compIndex(searchResults, parent, recPos); // Main TODO: Figure out how this works 
+
+		pNCI = 1 / (1 + NCI);
+	}
+
+	LOG_TRACE("Probability of success from meta: {} ", pNCI);
+
+	if (pNCI > Crand::rand_double(0, 1)) { // Can alter this later ://
+		LOG_TRACE("Immigrant Recruitment SUCCESS");
+		value rmTree = randomTree(); // Can remove it here because it the tree isn't being sampled form here 
+		removeTree(rmTree);
+		addTree(value(recPos, recruit));
+		return true;
+	}
+	else {
+		LOG_TRACE("Immigrant Recruitment FAILED");
+		return false;
+	}
+
+}

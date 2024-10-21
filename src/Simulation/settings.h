@@ -23,7 +23,7 @@ struct params { //
     double treeDensity = 0.014888; // Number of trees per area or lambda for pois()
 
     // Immigration settings
-    bool metaCommunityImmigration = false;
+    int metaCommunityImmigration = 1; // default meta 
     int metaComSize = 5000;
 
     // Fragment interactions etc

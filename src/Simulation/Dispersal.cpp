@@ -15,7 +15,7 @@ inline point dispersal::dispersalKernal(value& parent) {
 
     double r_angle = Crand::rand_double(0, 2) * Pi; // 
 
-    LOG_TRACE("Dispersal distance: : {}", dispDis);
+    //LOG_TRACE("Dispersal distance: : {}", dispDis);
 
     return point((parent.first.get<0>() + cos(r_angle) * dispDis), (parent.first.get<1>() + sin(r_angle) * dispDis));
 
