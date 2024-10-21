@@ -40,5 +40,9 @@ int main()
 
 	running.runSimulation();
 
+	char closeKey;
+	std::cout << "Close? press any key: \n";
+	std::cin >> closeKey;
+
 	return 0;
 }

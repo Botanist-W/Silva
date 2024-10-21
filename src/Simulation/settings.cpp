@@ -1,6 +1,43 @@
 #include "settings.h"
 #include "pch.h"
 
+
+
+/*// Simulation Settings
+    int timeSteps = 10000;
+    int captureRate = 1000;
+    int numRep = 10;  //number replicates
+    bool buildFromSample = false;
+
+    int numSpecies = 300; // number of species  
+    double treeDensity = 0.014888; // Number of trees per area or lambda for pois()
+
+    // Immigration settings
+    bool metaCommunityImmigration = false;
+    int metaComSize = 5000;
+
+    // Fragment interactions etc
+    int numFragments = 3;
+    bool equalFragmentSize = true;
+    double size = 100; // L ... Size of simulation Usefull for continuous 
+    std::vector<double> fragmentSizeList; // Is the equal Fragment size == false --> this this is used 
+    std::vector<std::vector<double>> nodeMap; // TODO: improve memeory useage << or decide if I need to because it's not used too much
+
+    // Ecological settings
+    bool fragmented = false; // Run with or without fragmentation
+    bool neutralComp = true;
+
+    double searchArea = 20; // ZOI
+    double b1 = 7;
+    double b2 = 6;
+    double m = 0.001; // Immigration rate
+    double dispersalDis = 20;
+    double mort = 0.1; // mortality rate TODO : implement or remove 
+    double HNDD = 9; // Default HNDD strength TODO: implement
+    double CNDD = 9; // Default CNDD
+    double extinctionRate = 0.0001;
+*/
+
 void settings::set(const params& par) {
     
     mParams = par;
@@ -8,6 +45,7 @@ void settings::set(const params& par) {
 };
 
 params settings::get() {
+
 
     return mParams;
 
@@ -34,12 +72,13 @@ void settings::generateDirectory() {
 
     std::ostringstream oss;
     oss << settingsPath
-        << "/Settings_"
+        << "/"
         << "nf" << mParams.numFragments << "_"
         << "m" << mParams.m << "_"
-        << "sp" << mParams.numSpecies << "_"
-        << "td" << mParams.treeDensity << "_"
-        << "t" << mParams.timeSteps;
+        << "hndd" << mParams.HNDD << "_"
+        << "cndd" << mParams.CNDD << "_"
+        << "t" << mParams.timeSteps << "_"
+        << "s" << mParams.size;
 
     std::filesystem::create_directories(oss.str());
 
@@ -48,6 +87,8 @@ void settings::generateDirectory() {
     //LOG_INFO("File directory: {}", settingsDirectory);
 
 }
+
+
 
 // Parameters
 void settings::saveParams() {
@@ -129,7 +170,7 @@ void settings::loadParams() { // Super inefficient but just being safe I guess T
             mParams.treeDensity = std::stof(value);
         }
         else if (parameter == "metaCommunityImmigration") {
-            mParams.metaCommunityImmigration = (value == "1");
+            mParams.metaCommunityImmigration = std::stoi(value);
         }
         else if (parameter == "metaComSize") {
             mParams.metaComSize = std::stoi(value);
@@ -228,11 +269,11 @@ void settings::loadNodeMap() { // TODO : use csv.h
     while (std::getline(file, line)) {
         std::stringstream ss(line);
         std::string value;
-        std::vector<float> row;
+        std::vector<double> row;
 
         while (std::getline(ss, value, ',')) {
 
-            row.push_back(std::stof(value)); // FLOAT == unbalanced immigration 
+            row.push_back(std::stof(value)); // double == unbalanced immigration 
 
         }
         mParams.nodeMap.push_back(row);
@@ -270,7 +311,7 @@ void settings::loadSizeList() {
     try {
         io::CSVReader<2> in(file);
         int fragment;
-        float size;
+        double size;
 
         while (in.read_row(fragment, size)) {
             

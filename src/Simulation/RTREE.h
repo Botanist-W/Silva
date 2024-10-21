@@ -10,7 +10,7 @@
 
 namespace bg = boost::geometry;
 namespace bgi = boost::geometry::index;
-typedef bg::model::point<float, 2, bg::cs::cartesian> point;
+typedef bg::model::point<double, 2, bg::cs::cartesian> point;
 typedef bg::model::box<point> box;
 typedef std::pair<point, indiv> value;
 typedef bgi::rtree<value, bgi::rstar<16>> RTREE; // TODO: Find the optimal sorting method 
@@ -43,7 +43,10 @@ public:
 	// Constructor 
 	rTree(const params& s) : mParams(s) {
 
-		
+		if (bounds > 100)
+			randomBoxSize = 20;
+		else
+			randomBoxSize = bounds;
 		
 	};
 
@@ -52,21 +55,21 @@ public:
 	};
 
 	// Values copied from settings --> just to make my life easier in future classes <-- dont care if its bad practice at this point << STOP THIS 
-	float searchArea;
-	float bounds;
-	float treeDensity;
+	double searchArea;
+	double bounds;
+	double treeDensity;
 	int numIndiv;
 	int numSpecies;
-	float b1 = 0.01;
-	float b2 = 7;
-	float m = 0.03; // Immigration rate
-	float HNDD = 0.1; // Default HNDD strength TODO: implement
-	float CNDD = 0.1; // Default CNDD
-	float b = 2;
+	double b1 = 0.01;
+	double b2 = 7;
+	double m = 0.03; // Immigration rate
+	double HNDD = 0.1; // Default HNDD strength TODO: implement
+	double CNDD = 0.1; // Default CNDD
+	double b = 2;
 	int timeSteps = 0;
 	
 	// Functions
-	std::vector<value> search(point foo, float& searchArea);
+	std::vector<value> search(point foo, double& searchArea);
 
 	void addTree(value foo);
 
@@ -85,6 +88,8 @@ private:
 
 	int addedSp;
 	int removedSp;
+
+	int randomBoxSize;
 
 	friend class Forest;
 };

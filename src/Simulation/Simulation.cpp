@@ -5,6 +5,12 @@
 Simulation::Simulation(const params& _params, const int& _repeat) :
 	mParams(_params), repeat(_repeat) {
 	setup();
+
+	if (repeat == 0)
+		mTimer = std::make_unique<activeTimer>();
+	else
+		mTimer = std::make_unique<nullTimer>();
+
 }
 
 
@@ -28,13 +34,16 @@ void Simulation::build() {
 
 	// swap ifs and for loops 
 	if (mParams.buildFromSample) {
+
+		int fileCount = data::getFileCount(mParams.sampleDirectory);
+
+		int sampleIndex = Crand::rand_int(0, fileCount-1);
+
 		for (int i = 0; i < mParams.numFragments; i++) {
 			// Creating instances of Forest class and assigning them an ID just as a guard against stuff
 			mForests.emplace_back(std::make_shared<Forest>(mParams, i));
 			
-			int sample = Crand::rand_int(0, 10); // Planning of having 10 samples
-
-			std::vector<value> samples = data::getSample(mParams.sampleDirectory, mParams.fragmentSizeList[i]);
+			std::vector<value> samples = data::getSample(mParams.sampleDirectory, mParams.fragmentSizeList[i], repeat, sampleIndex);
 
 			mForests[i]->buildFromForest(samples);
 			mForests[i]->initCounter();
@@ -64,6 +73,7 @@ void Simulation::build() {
 
 // TODO: REMOVE!
 void Simulation::buildSpLib() {
+	double a = mParams.dispersalDis * sqrt(1 / Pi);
 
 	for (int i = 0; i <= mParams.numSpecies; i++) {
 
@@ -71,7 +81,7 @@ void Simulation::buildSpLib() {
 
 		sp.species = i;
 
-		sp.dispersal = 11.2837; // TODO: DO THIS BETTER 
+		sp.dispersal = a; // TODO: DO THIS BETTER 
 
 		sp.CNDD = 0;
 
@@ -85,31 +95,50 @@ void Simulation::buildSpLib() {
 
 void Simulation::setImmigration() {
 
-	int sumOfNodes = 0;
-		
-	for (const auto& vec : mParams.nodeMap) {
-		// Sum the values of the inner vector and add to the total sum
-		sumOfNodes += std::accumulate(vec.begin(), vec.end(), 0);
-	}
-
-
-	if (mForests.size() < 2)
+	switch (mParams.metaCommunityImmigration)
 	{
-		immigration = std::make_unique<metaImmigration>(mParams);
-		immigration->buildMetaCom(spLibrary);
-	}
-	else if(mParams.m == 0 || sumOfNodes == 0) {
-
+	case 0:
 		immigration = std::make_unique<noImmigration>(mParams);
-	}
-	else
-		immigration = std::make_unique<networkImmigration>(mParams);
+		break;
 
+	case 1:
+		immigration = std::make_unique<metaImmigration>(mParams);
+		break;
+
+	case 2:
+		immigration = std::make_unique<metaImmigrationComp>(mParams);
+		break;
+
+	case 3:
+		immigration = std::make_unique<networkImmigration>(mParams);
+		break;
+
+	case 4:
+		immigration = std::make_unique<networkImmigrationMeta>(mParams);
+		break;
+
+	case 5:
+		immigration = std::make_unique<networkImmigrationComp>(mParams);
+		break;
+
+	case 6:
+		immigration = std::make_unique<networkImmigrationCompMeta>(mParams);
+		break;
+
+
+	default:
+		
+		LOG_ERROR("No immigration is being set");
+
+		break;
+	}
+
+	immigration->buildMetaCom(spLibrary);
 
 };
 
 void Simulation::runModel() {
-
+	//logParams(mParams);
 	LOG_DEBUG("Getting to thr first loop?");
 
 	int captures = mParams.timeSteps / mParams.captureRate;
@@ -117,42 +146,40 @@ void Simulation::runModel() {
 	int timeStep = 0;
 
 	int sizeSum = std::accumulate(mParams.fragmentSizeList.begin(), mParams.fragmentSizeList.begin(), 0);
-	results.reserve(((sizeSum * sizeSum) / mForests.size()) * mParams.timeSteps);
+	results.reserve(((sizeSum * sizeSum) / mForests.size()) * captures);
 
+
+
+	int forest = 0;
 
 	for (size_t capture = 0; capture < captures; capture++) {
 
 		LOG_TRACE("Capture: {}", capture);
 
-		// TODO: set up a loop in which a capture occurs 
-		auto start = std::chrono::high_resolution_clock::now();
-
 		for (size_t step = 0; step < mParams.captureRate; step++) { // using int becuase I aint changing things
 
 			LOG_TRACE("time step: {}", timeStep);
-
+			
 			immigration->handleImmigration(mForests);
 
-			for (size_t forest = 0; forest < mForests.size(); forest++) { // using int for the ID in m Occurence 
+			auto randForest = Crand::rand_int(0, mForests.size()-1); // Choosing which forest will have a local step this time
 
-				
-				if (immigration->mOccurence(forest) == false) {
+			mForests[randForest]->localStep();
+			//mForests[randForest]->counter(repeat, timeStep, true);
 
-					mForests[forest]->localStep(); // TODO: pass in timestep here << SHOULD BE USING A MAP OMG
-					/// Multithreading is slower for this bit which is a piss take :/
-				} 
+			for (size_t f = 0; f < mForests.size(); f++) {
+				if (f == randForest)
+					mForests[randForest]->counter(repeat, timeStep, true);
+				else
+					mForests[f]->counter(repeat, timeStep, false);
 
-				mForests[forest]->counter(repeat, timeStep);
-				
 			}
-
+			
 			timeStep++;
-		
+			mTimer->logger(timeStep);
 		}  // Step  (in between capture)
 
-		auto end = std::chrono::high_resolution_clock::now();
-		std::chrono::duration<double> duration = end - start;
-		LOG_TRACE("Elapsed time between captures: {} seconds", duration.count());
+
 
 		for (auto& forest : mForests) {
 			std::vector<observation> captures = forest->getCapture(repeat, timeStep);
@@ -165,7 +192,7 @@ void Simulation::runModel() {
 
 	
 	for (auto& forest : mForests) {
-		forest->counter(repeat, timeStep);// Last capture hopefully
+		forest->counter(repeat, timeStep, true);// Last capture hopefully
 		LOG_DEBUG("Uploading forests");
 		std::vector<std::tuple<int, int, int, int>> counts = forest->getSpCount();
 		LOG_DEBUG("Species Count size {}", counts.size());
@@ -191,3 +218,14 @@ std::vector<observation>& Simulation::getResults() {
 std::vector<std::tuple<int, int, int, int>>& Simulation::getSpCount() {
 	return spCountResults;
 };
+
+
+
+
+
+
+
+
+
+
+

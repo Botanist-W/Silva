@@ -23,15 +23,15 @@ class Crand {
 
 public:
 
-    static double rand_double(double min, double max) {
+    static double randFloat(float min, float max) {
         thread_local static std::mt19937 randg{ std::random_device{}() }; 
-        std::uniform_real_distribution<double> dist(min, max);
+        std::uniform_real_distribution<float> dist(min, max);
         return dist(randg);
     }
 
-    static float randFloat(float min, float max) { // Great naming ass-wipe
+    static double rand_double(double min, double max) { // Great naming ass-wipe
         thread_local static std::mt19937 randg{ std::random_device{}() };
-        std::uniform_real_distribution<float> dist(min, max);
+        std::uniform_real_distribution<double> dist(min, max);
         return dist(randg);
     }
 
@@ -43,7 +43,7 @@ public:
 
 };
 
-const float Pi = 3.14159;
-const float sqrtTau = sqrt(2 * Pi);
+const double Pi = 3.14159;
+const double sqrtTau = sqrt(2 * Pi);
 
 #endif // RAND

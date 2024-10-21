@@ -12,12 +12,13 @@ void data::setName(params& par) {
 
 void data::setCaptureName(params& par) {
     std::ostringstream oss;
-    oss << outputDirectory << "/Result_"
+    oss << outputDirectory << "R_"
         << "nf" << par.numFragments << "_"
         << "m" << par.m << "_"
-        << "sp" << par.numSpecies << "_"
-        << "td" << par.treeDensity << "_"
-        << "t" << par.timeSteps << ".csv";
+        << "hndd" << par.HNDD << "_"
+        << "cndd" << par.CNDD << "_"
+        << "t" << par.timeSteps << "_"
+        << "s" << par.size << ".csv";
     outputFile = oss.str();
 
     std::ofstream file(outputFile);
@@ -26,17 +27,18 @@ void data::setCaptureName(params& par) {
         return;
     }
 
-    file << "Repeat,Forest,TimeStep,ID,Species,x,y\n";
+    file << "Repeat,Forest,TimeStep,Species,x,y\n";
 }
 
 void data::setCountName(params& par) {
     std::ostringstream oss;
-    oss << outputDirectory << "/SpeciesCount_"
+    oss << outputDirectory << "S_"
         << "nf" << par.numFragments << "_"
         << "m" << par.m << "_"
-        << "sp" << par.numSpecies << "_"
-        << "td" << par.treeDensity << "_"
-        << "t" << par.timeSteps << ".csv";
+        << "hndd" << par.HNDD << "_"
+        << "cndd" << par.CNDD << "_"
+        << "t" << par.timeSteps << "_"
+        << "s" << par.size << ".csv";
     spCountOutFile = oss.str();
 
     std::ofstream file(spCountOutFile);
@@ -62,7 +64,6 @@ void data::saveResults(const std::vector<observation>& result) {
         file << obs.repeat + 1<< ","
             << obs.forest + 1<< ","
             << obs.timeStep << ","
-            << obs.uniqueID << ","
             << obs.species << ","
             << obs.x << ","
             << obs.y << "\n";
@@ -74,12 +75,40 @@ void data::setSampleDirectory(params& par, const std::string& path) {
     LOG_INFO("Loaded sample directory");
 }
 
-std::vector<value> data::getSample(const std::string& directory, float bounds) {
+
+int data::getFileCount(const std::string& directory) {
+
+    auto dirIter = std::filesystem::directory_iterator(directory);
+    int fileCount = std::count_if(
+        begin(dirIter),
+        end(dirIter),
+        [](auto& entry) { return entry.is_regular_file(); }
+    );
+
+    return fileCount;
+   
+}
+
+
+std::vector<value> data::getSample(const std::string& directory, double bounds, int repeat, int sampleIndex) {
+
+
+    auto dirIter = std::filesystem::directory_iterator(directory);
+    int fileCount = std::count_if(
+        begin(dirIter),
+        end(dirIter),
+        [](auto& entry) { return entry.is_regular_file(); }
+    );
+
+   
+
     std::ostringstream oss;
     LOG_DEBUG("loading smaple");
-    int sampleIndex = Crand::rand_int(1, 1); //TODO: ADJUST
 
-    oss << directory << "/sample_1.csv";
+
+    LOG_INFO("Sampled from Sample: {}", sampleIndex);
+
+    oss << directory << "/sample_" << sampleIndex<< ".csv";
     std::string filename = oss.str();
 
     std::vector<value> result; // TODO: implement x and y with bg::box 
@@ -87,9 +116,9 @@ std::vector<value> data::getSample(const std::string& directory, float bounds) {
         io::CSVReader<7> in(filename);
         in.read_header(io::ignore_extra_column, "uniqueID", "species", "x", "y", "dispersal", "HNDD", "CNDD");
 
-        float x, y;
+        double x, y;
         int uniqueID, species;
-        float dispersal, HNDD, CNDD;
+        double dispersal, HNDD, CNDD;
 
         while (in.read_row(uniqueID, species, x, y, dispersal, HNDD, CNDD)) {
             point p(x, y);
@@ -105,6 +134,7 @@ std::vector<value> data::getSample(const std::string& directory, float bounds) {
     catch (const io::error::header_missing& e) {
         LOG_ERROR("Header missing in file: {}", e.what());
     }
+
 
     LOG_DEBUG("Build from sample size of result: {}", result.size());
     return result;

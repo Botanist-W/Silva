@@ -10,10 +10,10 @@ struct indiv {
     int uniqueID;
     int species;
 
-    float dispersal;
+    double dispersal;
 
-    float HNDD;
-    float CNDD;
+    double HNDD;
+    double CNDD;
 
     // I will eventually add other traits to this
 
@@ -30,7 +30,7 @@ struct indiv {
 
 //  The idea of the observation is a nice when tring to replicate "real data"
 struct observation {
-    observation(int _repeat, int _forest, int _timeStep, int _uniqueID, int _species, float _x, float _y) :
+    observation(int _repeat, int _forest, int _timeStep, int _uniqueID, int _species, double _x, double _y) :
         repeat(_repeat),
         forest(_forest),
         timeStep(_timeStep),
@@ -44,7 +44,7 @@ struct observation {
     int timeStep;
     int uniqueID;
     int species;
-    float x, y;
+    double x, y;
 };
 
 #endif // !INDIV

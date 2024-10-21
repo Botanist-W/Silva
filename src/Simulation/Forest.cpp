@@ -30,6 +30,8 @@ void Forest::setParams() { // TODO: stop doing this
 	b1 = mParams.b1;
 	b2 = mParams.b2;
 	timeSteps = mParams.timeSteps;
+	HNDD = mParams.HNDD;
+	CNDD = mParams.CNDD;
 
 	LOG_TRACE("search area {}", searchArea);
 	LOG_TRACE("bounds {}", bounds);
@@ -42,7 +44,6 @@ void Forest::initCounter() {
 };
 
 
-// Step after immigration has been decided in the 
 void Forest::localStep() {
 
 	// Remove a random tree
@@ -51,8 +52,11 @@ void Forest::localStep() {
 	removeTree(rmTree); // Where should this go << who really cares?
 
 	searchResults.clear(); // just being nice and safe 
+	int attempt = 0;
 
 	while (true) { // Successful competition?
+		attempt++;
+
 
 		// Get random parent
 		value parent = randomTree();
@@ -64,35 +68,46 @@ void Forest::localStep() {
 		// OR
 		// I could be lazy :)
 		if (disp->inBounds(recPos) == false) {
-			LOG_TRACE ("Dispersal out of bounds");
+			LOG_TRACE("Dispersal out of bounds");
 			continue; // Restart dispersal if not in bounds 
 		}
-		
+
 		searchResults = search(recPos, searchArea);
 
 		//LOG_TRACE("Parent position: ({}, {})", parent.first.get<0>(), parent.first.get<1>());
 		LOG_TRACE("Recruit position: ({}, {})", recPos.get<0>(), recPos.get<1>());
-		LOG_TRACE("Number of search results: {}", searchResults.size());
+		//LOG_TRACE("Number of search results: {}", searchResults.size());
 
-		float NCI = 0;
+		double NCI = 0;
 
-		if(searchResults.size() < 2){	
+		if (searchResults.size() < 2) {
 			LOG_TRACE("No trees in surrounding area, assured recruitment");
 		}
 		else {
 			NCI = comp->compIndex(searchResults, parent, recPos); // Main TODO: Figure out how this works 
 		}
 
-		float pNCI = 1 / (1 + NCI);
+		double pNCI = 1 / (1 + NCI);
 
-		LOG_TRACE ("Probability of success: {} ", pNCI);
+		if (attempt >= 1000) {
+			LOG_ERROR("MAX ATTEMPTS REACHED (1000), pNCI: {}, Species: {}", pNCI, parent.second.species);
+
+			LOG_INFO("Parent position: {}, {}", parent.first.get<0>(), parent.first.get<1>());
+			addTree(randomTree());
+			break;
+		}
+
+		LOG_TRACE("Probability of success: {} ", pNCI);
+
+		if (tree.empty())
+			LOG_ERROR("NO Trees!!!!");
 
 		// Main check for whether recruitment was successfull 
-		if (pNCI > Crand::randFloat(0,1)) { // Can alter this later ://
+		if (pNCI > Crand::rand_double(0, 1)) { // Can alter this later ://
 			LOG_TRACE("Recruitment SUCCESS");
 			addTree(value(recPos, parent.second));
 			break;
-		} 
+		}
 		else
 		{
 			LOG_TRACE("Recruitment FAIL");
@@ -103,7 +118,6 @@ void Forest::localStep() {
 	}
 
 };
-
 
 // TODO: Go back in time and be more prepared for your deadline 
 void Forest::localExtinction(int& extSp, std::vector<indiv>& spLib) {
@@ -128,7 +142,7 @@ void Forest::localExtinction(int& extSp, std::vector<indiv>& spLib) {
 				}
 			}
 
-			tree.insert(value(point(Crand::randFloat(0, bounds), Crand::randFloat(0, bounds)), newID)); //replacing with some random indiv in the 
+			tree.insert(value(point(Crand::rand_double(0, bounds), Crand::rand_double(0, bounds)), newID)); //replacing with some random indiv in the 
 
 		}
 
@@ -138,8 +152,6 @@ void Forest::localExtinction(int& extSp, std::vector<indiv>& spLib) {
 	
 };
 
-
-
 std::vector<observation> Forest::getCapture(int repeat, int timeStep) {
 	
 	std::vector<observation> capture;
@@ -147,7 +159,7 @@ std::vector<observation> Forest::getCapture(int repeat, int timeStep) {
 
 	for (const auto& element : tree)
 		// Repeat, Forest, timestep, ID, Sp, x, y
-		capture.emplace_back(repeat, forestID, timeStep, int(element.second.uniqueID), int(element.second.species), float(element.first.get<0>()), float(element.first.get<1>())); // I hope this ends up emplacing in the right place
+		capture.emplace_back(repeat, forestID, timeStep, int(element.second.uniqueID), int(element.second.species), double(element.first.get<0>()), double(element.first.get<1>())); // I hope this ends up emplacing in the right place
 
 	LOG_DEBUG("Size of forest {} captures: {}", forestID, capture.size());
 
@@ -155,10 +167,6 @@ std::vector<observation> Forest::getCapture(int repeat, int timeStep) {
 
 };
 
-
-
-
-// TODO : Implement
 void Forest::buildFromForest(std::vector<value>& input) {
 
 	// Populate an rtree with the sample data
@@ -170,15 +178,17 @@ void Forest::buildFromForest(std::vector<value>& input) {
 	double maxX = sampleBox.max_corner().get<0>(); 
 	double maxY = sampleBox.max_corner().get<1>();
 
-	float xOffset; // Declare an offset of where to sample
-	float yOffset;
+	double xOffset; // Declare an offset of where to sample
+	double yOffset;
 
-	try {
-		xOffset = Crand::randFloat(0, maxX - bounds);
-		yOffset = Crand::randFloat(0, maxY - bounds);
+	if(maxX > bounds && maxY > bounds){
+		xOffset = Crand::rand_double(0, maxX - bounds);
+		yOffset = Crand::rand_double(0, maxY - bounds);
 	}
-	catch (...){
-		LOG_ERROR("input size too big to build from sample");
+	else{
+		LOG_WARN("input size too big to build from sample");
+		xOffset = 0;
+		yOffset = 0;
 	}
 
 	// Find a box within the sample which to sample from 
@@ -210,26 +220,72 @@ void Forest::buildFromForest(std::vector<value>& input) {
 	// Not always even distributiuon, so just an easy workaround 
 
 	if (sampleResults.size() != numIndiv) {
-		LOG_WARN("Non equal population sizes: sample results - {} Desired size - {} ", sampleResults.size(), numIndiv);
+		LOG_DEBUG("Non equal population sizes: sample results - {} Desired size - {} ", sampleResults.size(), numIndiv);
 		while (tree.size() > numIndiv) {
 			tree.remove(randomTree());
-			LOG_TRACE("Removing tree");
+			//LOG_TRACE("Removing tree");
 		}
 		while (tree.size() < numIndiv) {
 			tree.insert(randomTree());
-			LOG_TRACE("Adding tree");
+			//LOG_TRACE("Adding tree");
 		}
 	}
 
 };
 
-
-void Forest::counter(int repeat, int timeStep) {
-
-	mCounter->countMod(removedSp, addedSp, timeStep, forestID, repeat);
+void Forest::counter(int repeat, int timeStep, bool active) {
+	if(active)
+		mCounter->countMod(removedSp, addedSp, timeStep, forestID, repeat);
+	else
+		mCounter->countMod(1000, 1000, timeStep, forestID, repeat);
 
 }
 
 std::vector<std::tuple<int, int, int, int>> Forest::getSpCount() {
 	return mCounter->spCountList;
 };
+
+
+// jsut a bastardised local step 
+bool Forest::doCompetition(const indiv& recruit ) {
+	
+	// while loop moved to outside thi method
+
+	searchResults.clear();
+
+	// Random pos for recruit 
+	point recPos = point(Crand::rand_double(0, bounds), Crand::rand_double(0, bounds));
+
+	// search the area
+	searchResults = search(recPos, searchArea);
+
+	double NCI = 0;
+	double pNCI = 0;
+
+	if (searchResults.size() < 2) {
+		LOG_TRACE("No trees in surrounding area, assured recruitment");
+		pNCI = 1;
+	}
+	else {
+		value parent = value(point(0,0), recruit); // Position for parent is irrlevant/ just needed for comp method
+
+		NCI = comp->compIndex(searchResults, parent, recPos); // Main TODO: Figure out how this works 
+
+		pNCI = 1 / (1 + NCI);
+	}
+
+	LOG_TRACE("Probability of success from meta: {} ", pNCI);
+
+	if (pNCI > Crand::rand_double(0, 1)) { // Can alter this later ://
+		LOG_TRACE("Immigrant Recruitment SUCCESS");
+		value rmTree = randomTree(); // Can remove it here because it the tree isn't being sampled form here 
+		removeTree(rmTree);
+		addTree(value(recPos, recruit));
+		return true;
+	}
+	else {
+		LOG_TRACE("Immigrant Recruitment FAILED");
+		return false;
+	}
+
+}

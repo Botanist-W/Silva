@@ -2,12 +2,14 @@
 #include "pch.h"
 
 // 
-inline double competition::densityKernel(point& recruit, point& neighbour, float& c) { 
+inline double competition::densityKernel(point& recruit, point& neighbour, double& c) { 
 	// This is modelled off of Kalyuzky et al 2023 
+	
 	return c/(1 + pow((bg::distance(recruit, neighbour) / mForest.b1), mForest.b2));
+
 };
 
-
+// TODO: implement interspecific variation in CNDD and HNDD!!
 
 // Neutral
 double neutralComp::compIndex(std::vector<value>& searchResults, value& parent, point& recPos) {
@@ -17,7 +19,7 @@ double neutralComp::compIndex(std::vector<value>& searchResults, value& parent, 
 	for (auto& i : searchResults) 
 		cumDensity += densityKernel(i.first, recPos, mForest.HNDD); // Neutral so no worries
 
-	LOG_TRACE("NCI: {}", cumDensity);
+	//LOG_TRACE("NCI: {}", cumDensity);
 
 	return cumDensity;
 
@@ -38,12 +40,12 @@ double cnddComp::compIndex(std::vector<value>& searchResults, value& parent, poi
 
 	for (auto& i : searchResults) { // This is way smarter!!
 		if(i.second.species == sp)
-			cumDensity += densityKernel(i.first, recPos, mForest.CNDD); // Wow this is much smarter!!
+			cumDensity += densityKernel(i.first, recPos, mForest.CNDD); // Wow this is much smarter!! // Okay, I get it ...
 		else
 			cumDensity += densityKernel(i.first, recPos, mForest.HNDD); 
 	}
 
-	LOG_TRACE("NCI: {}", cumDensity);
+	//LOG_TRACE("NCI: {}", cumDensity);
 
 	return cumDensity;
 

@@ -37,6 +37,8 @@ public:
 		LOG_DEBUG("Forest {} destroyed", forestID);
 	}
 
+	bool doCompetition(const indiv&);
+
 	void localStep(); // Run a step of dispersal and competition, MAKE IT FAST ( Immigration is done first in the simulation class )
 
 	void localExtinction(int&, std::vector<indiv>& spLib); // takes species to remove from the forest and then replaces it with a bunch of random trees :) << WILL BE VERY INTENSIVE
@@ -47,7 +49,7 @@ public:
 	
 	std::vector<observation> getCapture(int repeat, int timeStep); 
 
-	void counter(int repeat, int timeStep);
+	void counter(int repeat, int timeStep, bool active);
 
 	std::vector<std::tuple<int, int, int, int>> getSpCount();
 
@@ -67,7 +69,16 @@ private:
 	// These search results are constantly used so keep on stack or something, idk
 	std::vector<value> searchResults;
 
+	friend class metaForest;
 };
+
+
+
+// You can only make this work if you actually intergrate the R tree and the forest class then make a base class for these two. Then from this you still have a lot of work to do.
+// TODO: do this ... 
+
+
+
 
 
 

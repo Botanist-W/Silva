@@ -16,10 +16,8 @@ public:
 
 	void runRepeats(); // Multithreading? 
 
-	std::vector<observation> getObvs(); //Trying to get stuff thzat the app can print out 
 
-	//void outputResults(std::vector<observation>& result); // Upload just one repeat 
-
+	void runBasic();
 
 private:
 	void init();

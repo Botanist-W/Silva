@@ -11,11 +11,11 @@ inline point dispersal::dispersalKernal(value& parent) {
     // remember that "a" (parent.dispersal) is not the raw mean dispersal distance but insead a transformed value...
 
     // This is the fancy part <-- iverse of a 2dt kernel
-    float dispDis = parent.second.dispersal * sqrt(pow((1 - Crand::randFloat(0, 1)), (1 / (1 - 2))) - 1); // TODO: SET DISPERSALLLLL!!!
+    double dispDis = parent.second.dispersal * sqrt(pow((1 - Crand::rand_double(0, 1)), (1 / (1 - 2))) - 1); // TODO: SET DISPERSALLLLL!!!
 
-    float r_angle = Crand::rand_double(0, 2) * Pi; // 
+    double r_angle = Crand::rand_double(0, 2) * Pi; // 
 
-    LOG_TRACE("Dispersal distance: : {}", dispDis);
+    //LOG_TRACE("Dispersal distance: : {}", dispDis);
 
     return point((parent.first.get<0>() + cos(r_angle) * dispDis), (parent.first.get<1>() + sin(r_angle) * dispDis));
 
@@ -40,7 +40,7 @@ bool fragmentedDisp::inBounds(point& pos){
 
 
 // Fragmented Search
-std::vector<value> fragmentedDisp::search(point& sought, float& searchArea) {
+std::vector<value> fragmentedDisp::search(point& sought, double& searchArea) {
     return mForest.search(sought, searchArea); // just a pass along but it works I guesss
 };
 // ~ Fragmented Search
@@ -80,7 +80,7 @@ bool continuousDisp::inBounds(point& p) {
 
 // CONTINUOUS SEARCH
 
-std::vector<value> continuousDisp::search(point& sought, float& searchArea) {
+std::vector<value> continuousDisp::search(point& sought, double& searchArea) {
 
     searchResults = mForest.search(sought, searchArea);
 

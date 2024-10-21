@@ -5,7 +5,7 @@
 void rTree::buildFromLib(std::vector<indiv>& spLib) {
 
     for (int i = 0; i < numIndiv; i++) 
-        tree.insert(value(point(Crand::randFloat(0, bounds), Crand::randFloat(0, bounds)), spLib[Crand::rand_int(0, numSpecies-1)]));
+        tree.insert(value(point(Crand::rand_double(0, bounds), Crand::rand_double(0, bounds)), spLib[Crand::rand_int(0, numSpecies-1)]));
 
 };
 
@@ -17,12 +17,12 @@ void rTree::build(std::vector<value>& input) {
 }
 
 
-std::vector<value> rTree::search(point sought, float& searchArea) {
+std::vector<value> rTree::search(point sought, double& searchArea) {
 
     std::vector<value> results;
 
-    float sought_x = bg::get<0>(sought);
-    float sought_y = bg::get<1>(sought);
+    double sought_x = bg::get<0>(sought);
+    double sought_y = bg::get<1>(sought);
 
     box query_box(point(sought_x - searchArea, sought_y - searchArea), point(sought_x + searchArea, sought_y + searchArea));
 
@@ -52,7 +52,7 @@ value rTree::randomTree() {
    // point point_rng = ;
 
     value result;
-    tree.query(bgi::nearest(point(Crand::randFloat(0, bounds), Crand::randFloat(0, bounds)), 1), &result); ////// HERE'S THE PROBLEM!!!!!!! MAYBE
+    tree.query(bgi::nearest(point(Crand::rand_double(0, bounds), Crand::rand_double(0, bounds)), 1), &result); ////// HERE'S THE PROBLEM!!!!!!! MAYBE
     return result;
 
 };
@@ -60,16 +60,16 @@ value rTree::randomTree() {
 
 // Final attempt 
 
-value rTree::randomTree(){
+value rTree::randomTree() {
 
-    float boxSize = 20;
+    double boxSize = 20;
 
     std::vector<value> results; // Learing new shizzle 
 
     while (results.empty()) {
 
-        float minX = Crand::randFloat(0, bounds - boxSize);
-        float minY = Crand::randFloat(0, bounds - boxSize);
+        double minX = Crand::rand_double(-boxSize, bounds);
+        double minY = Crand::rand_double(-boxSize, bounds);
 
         box randBox = box(point(minX, minY), point(minX + 20, minY + 20));
 
@@ -84,11 +84,11 @@ value rTree::randomTree(){
 
     return results[index];
 
-}
+};
 
-//
+
 //value rTree::randomTree() {
-//    return *std::next(tree.begin(), Crand::rand_int(0, tree.size() - 1));
+  //  return *std::next(tree.begin(), Crand::rand_int(0, tree.size() - 1));
 //};
 
 std::vector<value> rTree::getValues() { // I know this is slow but I forgot how to do it propely 
